@@ -1,29 +1,13 @@
-# isp_vue
-
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
+## isp_vue
+## 需安装node.js 版本v12.22.0（其他版本未测试）
+https://nodejs.org/download/release/v12.22.0/
+## 安装element
+npm install element-plus --save
+## 列宽
+npm install v-fit-columns --save
+## 安装jquery
+npm install jquery
+## 启动
 npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Run your unit tests
-```
-npm run test:unit
-```
-
-### Run your end-to-end tests
-```
-npm run test:e2e
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## 安装element-plus的icon
+npm install @element-plus/icons-vue

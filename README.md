@@ -7,7 +7,7 @@ npm install element-plus --save
 npm install v-fit-columns --save
 ## 安装jquery
 npm install jquery
-## 启动
-npm run serve
 ## 安装element-plus的icon
 npm install @element-plus/icons-vue
+## 启动
+npm run serve

@@ -1,0 +1,12 @@
+@import "var.scss";
+.header{
+    height: 60px;
+    background: $--color-menuheader-background;
+    .sysname{
+        line-height: 60px; // 字体上下居中
+        color: $--color-menu-text; // 字体颜色
+        font-size: 16px; // 字体大小
+        font-weight: bold; // 字体加粗
+        margin-left: 10px;
+    }
+}

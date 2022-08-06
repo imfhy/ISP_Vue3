@@ -9,10 +9,12 @@
     "test:e2e": "vue-cli-service test:e2e"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^2.0.0-beta.1",
+    "@element-plus/icons-vue": "^2.0.6",
     "core-js": "^3.8.3",
-    "element-plus": "^2.2.2",
+    "element-plus": "^2.2.11",
     "exceljs": "^4.3.0",
+    "jquery": "^3.6.0",
+    "v-fit-columns": "^0.2.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
     "vuex": "^4.0.0"

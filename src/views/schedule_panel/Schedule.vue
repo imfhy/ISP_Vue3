@@ -1,6 +1,6 @@
 <template>
   <div class="schedule">
-    <el-card shadow="hover">
+    <el-card shadow="never">
       <div class="search">
         <el-input class="myinput" v-model="search_input" placeholder="请输入搜索内容" prefix-icon="el-icon-search"></el-input>
         <el-select class="myselect" v-model="value_lock_state" placeholder="锁定状态">

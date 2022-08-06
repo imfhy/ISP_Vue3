@@ -4,6 +4,7 @@ import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import ControlPanel from '../views/ControlPanel.vue'
 import OnlineTable from '../views/OnlineTable.vue'
+import Config from '../views/Config.vue'
 // 异步加载
 const SchedulePanel = ()=>import('../views/schedule_panel/Index.vue')
 const Schedule = ()=>import('../views/schedule_panel/Schedule.vue')
@@ -32,6 +33,11 @@ const routes = [
         path:'/online-table',
         name:'OnlineTable',
         component: OnlineTable
+      },
+      {
+        path:'/config',
+        name:'Config',
+        component: Config
       },
       {
         path:'/schedule-panel',

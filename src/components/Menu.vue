@@ -7,7 +7,7 @@
       background-color="white"
       text-color="black"
       style="min-height: 1000px"
-      active-text-color="#27ad60"
+      active-text-color="#409EFF"
       router>
       <el-menu-item index="/home">
         <el-icon><HomeFilled /></el-icon>
@@ -16,6 +16,10 @@
       <el-menu-item index="/control-panel">
         <el-icon><Operation /></el-icon>
         <span>控制面板</span>
+      </el-menu-item>
+      <el-menu-item index="/config">
+        <el-icon><Tools /></el-icon>
+        <span>排程配置</span>
       </el-menu-item>
       <el-menu-item index="/online-table">
         <el-icon><Histogram /></el-icon>
@@ -46,15 +50,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.header{
-    height: 60px;
-    background: #27ad60;
-    .sysname{
-        line-height: 60px; // 字体上下居中
-        color:aliceblue; // 字体颜色
-        font-size: 16px; // 字体大小
-        font-weight: bold; // 字体加粗
-        margin-left: 10px;
-    }
-}
+@import '../assets/theme/menu.scss';
 </style>

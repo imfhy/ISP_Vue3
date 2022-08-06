@@ -1,23 +1,31 @@
 <template>
-  <div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;height:90%;left: 0px;"></div>
+  <div id="luckysheet" style="margin:0px;padding:0px;width:100%;height:800px;">
+  </div>
+
 </template>
 
 <script>
+import App from '@/App.vue'
 export default {
-  name: 'luckysheet',
-  mounted() {
-            this.init()
-        },
-  methods:{
-  init(){
-      var options = {
-          container: 'luckysheet', //luckysheet为容器id
-          title:'排程表', //表 头名
-          lang: 'zh', //中文
-      }
-      luckysheet.create(options)
-    }
-  },
+    name: "luckysheet",
+    props: {
+        msg: String
+    },
+    mounted() {
+        this.init_luckysheet();
+    },
+    methods: {
+        init_luckysheet() {
+            var options = {
+                container: "luckysheet",
+                title: "排程表",
+                lang: "zh",
+                showinfobar: false, // 不显示luckysheet图标
+            };
+            luckysheet.create(options);
+        }
+    },
+    components: { App }
 }
 </script>
 

@@ -5,6 +5,7 @@ import store from './store'
 import ElementPlus from 'element-plus';
 import * as ElIconModules from '@element-plus/icons-vue'
 import 'element-plus/theme-chalk/index.css'
+// import '../src/assets/theme/index.scss'
 // import './assets/css/element-variables.scss'
 const app = createApp(App);
 // 统一注册Icon图标

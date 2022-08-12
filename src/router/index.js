@@ -5,9 +5,11 @@ import Login from '../views/Login.vue'
 import ControlPanel from '../views/ControlPanel.vue'
 import OnlineTable from '../views/OnlineTable.vue'
 import Config from '../views/Config.vue'
+import { nextTick } from 'vue'
 // 异步加载
-const SchedulePanel = ()=>import('../views/schedule_panel/Index.vue')
-const Schedule = ()=>import('../views/schedule_panel/Schedule.vue')
+const SchedulePanel = ()=>import('../views/daily_config/Index.vue')
+const Schedule = ()=>import('../views/daily_config/Schedule.vue')
+const Program = ()=>import('../views/daily_config/Program.vue')
 const DailyConfiguration = ()=>import('../views/daily_configuration/Index.vue')
 const Production = ()=>import('../views/daily_configuration/Production.vue')
 // route level code-splitting
@@ -18,6 +20,10 @@ const routes = [
   {
     path: '',
     component: Index,
+    // 路由元信息
+    meta:{
+      isLogin: true,
+    },
     children:[
       {
         path:'/home',
@@ -40,15 +46,19 @@ const routes = [
         component: Config
       },
       {
-        path:'/schedule-panel',
-        name:'schedule-panel',
+        path:'/daily-config',
+        name:'daily-config',
         component: SchedulePanel,
-        redirect:'/schedule-panel/schedule',
+        redirect:'/daily-config/program',
         children:[
           {
             path:'schedule',
             component: Schedule,
-          }
+          },
+          {
+            path:'program',
+            component: Program,
+          },
         ]
       },
       {
@@ -75,6 +85,23 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
+})
+
+// 路由拦截
+router.beforeEach((to,from,next)=>{
+  console.log("=== to ===", to)
+  // 判断是否需要登录
+  if(to.matched.some(ele=>ele.meta.isLogin)){
+    // 判断当前用户是否已经登录
+    let token = localStorage.getItem("token")
+    if(token){
+      next()
+    }else{
+      next('/login')
+    }
+  }else{ // 不需要登录
+    next();
+  }
 })
 
 export default router

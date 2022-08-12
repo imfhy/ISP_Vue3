@@ -265,7 +265,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .schedule{
-  margin: 10px;
+  // margin: 10px;
 }
 .search{
   display: flex;

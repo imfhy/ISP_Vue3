@@ -1,8 +1,8 @@
 <template>
   <div class="index">
-    <Header class="header"/>
-    <Menu class="menu"/>
-    <Content class="content"/>
+    <Header class="header" @changeCollapse="changeCollapse" :isCollapse="isCollapse"/>
+    <Menu class="menu" :isCollapse="isCollapse"/>
+    <Content class="content" :class="{isActive:isCollapse}" @changeCollapse="changeCollapse"/>
   </div>
 </template>
 
@@ -11,11 +11,21 @@ import Menu from '../components/Menu'
 import Header from '../components/Header'
 import Content from '../components/Content'
 export default {
-    components:{
-      Menu,
-      Header,
-      Content
-    }  
+  components:{
+    Menu,
+    Header,
+    Content
+  },
+  data () {
+      return {
+        isCollapse: false,
+      }
+  },
+  methods:{
+    changeCollapse(){
+      this.isCollapse = !this.isCollapse;
+    }
+  }
 }
 </script>
 

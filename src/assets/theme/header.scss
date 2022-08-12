@@ -1,0 +1,29 @@
+@import "var.scss";
+.header{
+  .el-icon{
+    left: 100px;
+    font-size: 24px;
+    color:azure;
+    line-height: 50px; // 字体上下居中
+  }
+  .sysname{
+    float: left;
+    line-height: 50px; // 字体上下居中
+    color: $--color-menu-text; // 字体颜色
+    font-size: 14px; // 字体大小
+    font-weight: bold; // 字体加粗
+    margin-left: 10px;
+  }
+}
+// .el-icon{
+//   // margin-left: 200px;
+//   font-size: 24px;
+//   color:azure;
+// }
+// .sysname{
+//   line-height: 50px; // 字体上下居中
+//   color: $--color-menu-text; // 字体颜色
+//   font-size: 16px; // 字体大小
+//   font-weight: bold; // 字体加粗
+//   margin-left: 10px;
+// }

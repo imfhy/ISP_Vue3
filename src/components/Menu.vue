@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div class="header"><div class="sysname">SMT排程系统</div></div>
     <el-menu
       default-active="/"
       class="el-menu-vertical-demo"
@@ -8,6 +7,7 @@
       text-color="black"
       style="min-height: 1000px"
       active-text-color="#409EFF"
+      :collapse="isCollapse"
       router>
       <el-menu-item index="/home">
         <el-icon><HomeFilled /></el-icon>
@@ -25,17 +25,18 @@
         <el-icon><Histogram /></el-icon>
         <span>在线表格</span>
       </el-menu-item>
-      <el-sub-menu index="/schedule-panel">
+      <el-sub-menu index="/daily-config">
         <template #title>
           <el-icon><Menu /></el-icon>
-          <span>排程面板</span>
+          <span>每日配置</span>
         </template>
-        <el-menu-item index="/schedule-panel/schedule"><el-icon><Histogram /></el-icon>排程表</el-menu-item>
+        <el-menu-item index="/daily-config/schedule"><el-icon><Histogram /></el-icon>排程表</el-menu-item>
+        <el-menu-item index="/daily-config/program"><el-icon><Histogram /></el-icon>程序表</el-menu-item>
       </el-sub-menu>
       <el-sub-menu index="/daily-configuration">
         <template #title>
-          <el-icon><Tools /></el-icon>
-          <span>每日配置</span>
+          <el-icon><Menu /></el-icon>
+          <span>长期配置</span>
         </template>
         <el-menu-item index="/daily-configuration/production"><el-icon><Histogram /></el-icon>生产报表</el-menu-item>
       </el-sub-menu>
@@ -45,7 +46,12 @@
 
 <script>
 export default {
-
+  props:['isCollapse'],
+  data () {
+    return {
+      // isCollapse: false,
+    }
+  }
 }
 </script>
 

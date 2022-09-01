@@ -1,30 +1,46 @@
 <template>
   <div id="onlinetable">
-    <el-card shadow="never" style="margin-bottom:8px;">
-      <el-alert :title="alert_title" :type="alert_type" />
+    <el-card shadow="never" class="box-card">
+      <el-alert :title="alert_title" :type="alert_type" :closable="false" style="margin-bottom: 10px"/>
       <el-row>
-        <el-button type="primary"><el-icon><Pointer /></el-icon>获取</el-button>
-        <el-button type="primary" @click="checkExcel()">
-          <el-icon><Select /></el-icon>检查
-        </el-button>
-        <el-button type="primary"><el-icon><MagicStick /></el-icon>分析</el-button>
-        <el-button type="primary" @click="downloadExcel()">
-          <el-icon><download /></el-icon>下载表格
-        </el-button>
         <el-upload
           class="upload-demo"
           ref="upload"
           action="alert"
           accept=".xlsx"
           :show-file-list="false"
-
           :auto-upload="false"
           :file-list="uploadFiles"
           :on-change="loadExcelFile"
           >
-          <el-button slot="trigger" type="primary"><el-icon><UploadFilled /></el-icon>上传表格</el-button>
+          <el-button slot="trigger" type="primary" style="margin-right: 12px">
+            <el-icon><UploadFilled /></el-icon>上传排程表格</el-button>
         </el-upload>
-        <el-select class="myselect" v-model="value_lock_state" placeholder="选择排程表格">
+        <!-- <el-button type="primary">获取</el-button> -->
+        <el-button type="primary" @click="checkExcel()">
+          检查
+        </el-button>
+        <!-- <el-button type="primary" @click="checkData()">
+          后端检查
+        </el-button> -->
+        <el-button type="primary" @click="dialogVisible = true">分析排程</el-button>
+        <el-button type="primary" @click="downloadExcel()" style="margin-right: 12px">
+          <el-icon><download /></el-icon>下载表格
+        </el-button>
+        <!-- <el-upload
+          class="upload-demo"
+          ref="upload"
+          action="alert"
+          accept=".xlsx"
+          :show-file-list="false"
+          :auto-upload="false"
+          :file-list="uploadFiles"
+          :on-change="loadExcelFile"
+          >
+          <el-button slot="trigger" type="primary" style="margin-right: 12px">
+            <el-icon><UploadFilled /></el-icon>上传表格</el-button>
+        </el-upload> -->
+        <el-select class="myselect" v-model="value_lock_state" placeholder="选择历史排程">
           <el-option
             v-for="item in options_lock_state"
             :key="item.value"
@@ -34,14 +50,91 @@
         </el-select>
       </el-row>
     </el-card>
-    <!-- <LuckySheet /> -->
-    <div id="luckysheet" style="margin:0px;padding:0px;width:100%;height:700px;"></div>
+        <el-dialog
+          v-model="dialogVisible"
+          title="分析排程"
+          width="60%"
+          :before-close="handleClose"
+          >
+            <el-row>
+              <el-col :span="12">
+                <el-card shadow="never" style="height: 330px;margin: 5px;">
+                  <template #header>
+                    <div class="card-header" style="text-align:left">
+                      <span>任务进度</span>
+                    </div>
+                  </template>
+                  <el-progress
+                    :text-inside="true"
+                    :stroke-width="14"
+                    :percentage="percentage_1"
+                    status="success"
+                  />
+                  <el-alert :title="progress_text_1" type="success" :closable="false" />
+                  <el-progress
+                    :text-inside="true"
+                    :stroke-width="14"
+                    :percentage="percentage_1"
+                    status="success"
+                  />
+                  <el-alert :title="progress_text_1" type="success" :closable="false" />
+                  <el-progress
+                    :text-inside="true"
+                    :stroke-width="14"
+                    :percentage="percentage_1"
+                    status="success"
+                  />
+                  <el-alert :title="progress_text_1" type="success" :closable="false" />
+                </el-card>
+              </el-col>
+              <el-col :span="12">
+                <el-card shadow="never" style="height: 330px;margin: 5px;">
+                  <template #header>
+                    <div class="card-header" style="text-align:left">
+                      <span>分析结果</span>
+                    </div>
+                  </template>
+                  <p>0806正排分析</p>
+                  <p>是否可行解</p>
+                  <p>目标值：</p>
+                  <p>逾期：</p>
+                  <p>停顿：</p>
+                  <p>线平衡：</p>
+                  <p>三天总点数：</p>
+                </el-card>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-card shadow="never" style="height: 180px;margin: 5px;">
+                  <template #header>
+                    <div class="card-header" style="text-align:left">
+                      <span>提示</span>
+                    </div>
+                  </template>
+                </el-card>
+              </el-col>
+            </el-row>
+          <template #footer>
+            <span class="dialog-footer">
+              <el-button @click="dialogVisible = false">关闭</el-button>
+              <el-button type="primary" @click="analysisExcel()">开始分析</el-button>
+              <el-button type="primary" @click="dialogVisible = false">生成表格</el-button>
+              <el-button type="primary" @click="dialogVisible = false">下载表格</el-button>
+              <el-button type="primary" @click="dialogVisible = false">对比结果</el-button>
+            </span>
+          </template>
+        </el-dialog>
+    <div id="luckysheet" class="box-luckysheet"></div>
   </div>
 </template>
 
 <script>
 import LuckySheet from '../components/LuckySheet.vue'
 import LuckyExcel from 'luckyexcel'
+import XLSX from 'xlsx'
+import { CheckData, AnalysisData } from '@/utils/api.js'
+import { ElLoading } from 'element-plus'
 export default {
   name: "luckysheet",
   components: {
@@ -53,51 +146,42 @@ export default {
   data(){
     return {
       uploadFiles: [],   // excel文件列表
+      file_name: "",   // excel文件列表
       options_lock_state: [],
       value_lock_state: "",
       alert_title: "消息提示",
       alert_type: "info",  // success error warning info
 
-      locked_list:[
-        "锁定",
-        "新增锁定",
-        "新上锁定",
-        "插入锁定"
-      ],
-      unlocked_list:[
-        "未锁定",
-        "新上排程",
-        "未上排程"
-      ],
-      all_line_list: [
-        "SM01",
-        "SM02",
-        "SM09",
-        "SM19",
-        "SM22",
-        "SM23",
-        "SR01",
-        "SR02",
-        "SR03",
-        "SM11",
-        "SM08",
-        "SR09",
-        "SM06",
-        "SM07",
-        "SM15",
-        "SM13",
-        "SM05",
-        "SM21",
-        "SR06",
-        "SM03",
-        "ST01",
-      ]
+      locked_list:[ "锁定", "新增锁定", "新上锁定", "插入锁定" ],
+      unlocked_list:[ "未锁定", "新上排程", "未上排程" ],
+      all_line_list: [ "SM01", "SM02", "SM09", "SM19", "SM22", "SM23", "SR01", "SR02", "SR03", "SM11", "SM08", 
+        "SR09", "SM06", "SM07", "SM15", "SM13", "SM05", "SM21", "SR06", "SM03", "ST01", ],
+
+      loadingInstance:null,
+      dialogVisible: false,
+      progress_text_1: "预处理|未开始",
+      progress_text_2: "分析|未开始",
+      progress_text_3: "输出|未开始",
+      percentage_1: 0,
+      percentage_2: 0,
+      percentage_3: 0,
     }
   },
   mounted() {
       this.init_luckysheet();
   },
   methods: {
+    handleClose(done) {
+      this.$confirm('请确认是否要关闭分析排程？', '提示', {
+        type: "warning",
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+      })
+      .then(_ => {
+        done();
+      })
+      .catch(_ => {});
+    },
     init_luckysheet() {
       var options = {
           container: "luckysheet",
@@ -106,9 +190,22 @@ export default {
       };
       luckysheet.create(options);
     },
+    analysisExcel(){
+      let wb = this.get_sheet_js(false); // luckysheet获取sheet，并且转化为SheetJS的格式
+      let blob = this.workbook2blob(wb);  // SheetJS转化为文件流
+      let form_data = new FormData(); // 新建表单
+      form_data.append('files', blob);  // 在线表格文件流e
+      form_data.append('file_name', this.file_name);  // 在线表格文件流
+      AnalysisData(form_data).then(res=>{
+        this.checkAlert("提示", "分析排程测试！", "success")
+      }).catch(err=>{
+        this.checkAlert("警告","分析排程测试！", "warning")
+      })
+    },
     loadExcelFile(file, fileList) {
       if (fileList.length > 0) {
         this.uploadFiles = fileList = [fileList[fileList.length - 1]] // 选择最后一次选择文件
+        this.file_name = this.uploadFiles[0].name  // 更新文件名
       }
       // this.uploadFiles = fileList
       var excel_file = fileList[0].raw  // 获取文件流
@@ -128,6 +225,144 @@ export default {
         });
       });
     },
+    // 将字符串转ArrayBuffer
+    s2ab(str) {
+        const buf = new ArrayBuffer(str.length)
+        const view = new Uint8Array(buf)
+        for (let i = 0; i !== str.length; ++i) view[i] = str.charCodeAt(i) & 0xff
+        return buf
+    },
+    // 将workbook转换成bolb
+    workbook2blob(workbook) {
+      const wbOpts = {
+        bookType: 'xlsx',
+        // 是否生成Shared String Table，官方解释是，如果开启生成速度会下降，但在低版本IOS设备上有更好的兼容性
+        bookSST: false,
+        type: 'binary',
+      }
+      const wbOut = XLSX.write(workbook, wbOpts)
+      return new Blob([this.s2ab(wbOut)], { type: 'application/octer-stream' })
+    },
+
+    checkData () {
+      // 3. 生成动画
+      this.loadingInstance = ElLoading.service({
+          // 动画中的文字
+          text:'检查中',
+          // 要加载动画的容器
+          target:'#onlinetable'
+      });
+      let wb = this.get_sheet_js(false); // luckysheet获取sheet，并且转化为SheetJS的格式
+      let blob = this.workbook2blob(wb);  // SheetJS转化为文件流
+      let form_data = new FormData(); // 新建表单
+      form_data.append('files', blob);  // 在线表格文件流
+      CheckData(form_data).then(res=>{
+        this.checkAlert("提示", "检查测试！", "success")
+      }).catch(err=>{
+        this.checkAlert("警告","检查测试！", "warning")
+      })
+      this.loadingInstance.close();
+    },
+
+    downloadExcel() {
+      this.get_sheet_js(true);
+    },
+
+    // lucky sheet 的 data 转化为 SheetJS的数据
+    sheet_data_to_js(downOriginData) {
+      let arr = [];  // 所有的单元格数据组成的二维数组
+      let cellValue = null;
+      let max_row = downOriginData.length; // 默认行长度
+      let max_col = downOriginData[0].length; // 默认列长度
+      // 根据锁定状态列来判断数据有多少条
+      for (let col = downOriginData[0].length; col > 0; col--) {
+          if (downOriginData[0][col] != null) {
+              max_col = col + 1;
+              break;
+          }
+      }
+      // 根据表头来判断数据有多少条
+      for (let row = downOriginData.length; row > 0; row--) {
+          if (downOriginData[row] != null) {
+              max_row = row + 1;
+              break;
+          }
+      }
+      // 获取二维数组
+      for (let row = 0; row < max_row; row++) {
+          let arrRow = [];  // 一行数据
+          for (let col = 0; col < max_col; col++) {
+            // 等号赋值并且判断是否存在值
+            if (downOriginData[row][col]) {
+              cellValue = downOriginData[row][col]
+            } else {
+              cellValue = { m: '', v: '' };
+            }
+            let is_exist = true;
+            let text_val;
+            // 获取带有换行的文本
+            try {
+              text_val = cellValue.ct.s[0].v
+            } catch (err) {
+              is_exist = false
+            }
+            if (is_exist) {
+              arrRow.push(text_val)
+            }
+            else if (cellValue.ct != null && cellValue.ct.t === 'd') {
+              // m 是展示值
+              arrRow.push(cellValue.m)
+            } else {
+              // v是实际值
+              arrRow.push(cellValue.v);
+            }
+          }
+          arr.push(arrRow)
+        }
+
+        // 通过SheetJs将数据转化为excel格式数据
+        let opts = {
+            cellDates: false,
+            cellStyles: true
+        };
+        return XLSX.utils.aoa_to_sheet(arr, opts);
+    },
+    // 返回当前sheet的数据，并转化为SheetJS格式
+    get_sheet_js(download_flag) {
+      let today_schedule_name = '今日排程';
+      let unschedule_name = '未上排程';
+      let today_schedule_sheet = null;
+      let unschedule_sheet = null;
+      let allSheetData = window.luckysheet.getAllSheets();
+      for (let i = 0; i < allSheetData.length; i++) {
+        if (allSheetData[i].name === today_schedule_name) {
+          today_schedule_sheet = allSheetData[i];
+        } else if (allSheetData[i].name === unschedule_name) {
+          unschedule_sheet = allSheetData[i];
+        }
+      }
+      let sheets = {};
+      if (today_schedule_sheet) {
+        sheets[[today_schedule_name]] = Object.assign({}, this.sheet_data_to_js(today_schedule_sheet.data));
+      }
+      if (unschedule_sheet) {
+        sheets[[unschedule_name]] = Object.assign({}, this.sheet_data_to_js(unschedule_sheet.data))
+      }
+
+      let workbook = {
+        //保存的表标题
+        SheetNames: [today_schedule_name, unschedule_name],
+        //内容
+        Sheets: sheets,
+      }
+      if (download_flag === false) {
+        return workbook
+      } else {
+        // 直接下载当前sheet的数据
+        let fileName = '在线表格';
+        XLSX.writeFile(workbook, fileName + ".xlsx");
+      }
+    },
 
     // 自定义提示，弹框提示并同步修改el-alert组件的内容
     checkAlert(title, info, type){
@@ -142,13 +377,6 @@ export default {
           }
           this.alert_type = type
         }
-      })
-    },
-
-    downloadExcel(){
-      this.$alert("下载成功", "提示", {
-        confirmButtonText: '确定',
-        type: "success",
       })
     },
 
@@ -349,6 +577,7 @@ export default {
 
     // 今日排程：检查锁定状态命名是否有误，返回错误行号[Error 1-000]
     check_todaysheet_lock_state_format(lock_state_list) {
+      console.log(lock_state_list)
       const error_row_list = []; // 存放错误的行号
       for (let i = 0; i < lock_state_list.length; i++) {
         for (let key in lock_state_list[i]) {

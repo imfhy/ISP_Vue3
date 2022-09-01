@@ -89,7 +89,7 @@ const router = createRouter({
 
 // 路由拦截
 router.beforeEach((to,from,next)=>{
-  console.log("=== to ===", to)
+  console.log("路由拦截")
   // 判断是否需要登录
   if(to.matched.some(ele=>ele.meta.isLogin)){
     // 判断当前用户是否已经登录

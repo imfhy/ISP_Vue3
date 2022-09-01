@@ -11,3 +11,6 @@ npm install jquery
 npm install @element-plus/icons-vue
 ## 启动
 npm run serve
+## 配置
+npm install -D unplugin-vue-components unplugin-auto-import
+npm i element-theme -g

@@ -62,7 +62,6 @@
           :data="tableData"
           style="width: 100%"
           height="600"
-          border
         >
           <el-table-column fixed type="selection" width="40" />
           <el-table-column fixed prop="lock_state" label="锁定状态" width="90" />

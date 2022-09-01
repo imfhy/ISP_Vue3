@@ -16,7 +16,6 @@ const app = createApp(App);
 
 // app.config.productionTip = false
 // app.use(VueAxios,axios);
-
 // 统一注册Icon图标
 for (const iconName in ElIconModules) {
     if (Reflect.has(ElIconModules, iconName)) {
@@ -24,7 +23,10 @@ for (const iconName in ElIconModules) {
       app.component(iconName, item)
     }
 }
-app.use(ElementPlus)
+import 'dayjs/locale/zh-cn'
+import locale from 'element-plus/lib/locale/lang/zh-cn'
+// app.use(ElementPlus)
 app.use(store)
 app.use(router)
+app.use(ElementPlus,{locale});  // 中文
 app.mount('#app')

@@ -2,8 +2,7 @@
   <div>
       <div class="login-box">
         <el-card style="height: 300px;">
-            <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick" stretch>
-
+            <el-tabs v-model="activeName" class="demo-tabs" stretch>
               <el-tab-pane label="普通用户登录" name="common_user">
                   <el-form :model="loginForm"
                   status-icon :rules="rules" 
@@ -54,6 +53,7 @@
 import {VerifyLogin} from '@/utils/api.js'
 // import { token } from '@/utils/login.js'
 import {useStore} from 'vuex'
+import { ElNotification, ElMessage, ElLoading } from 'element-plus'
 export default {
   data() {
     return {
@@ -64,10 +64,10 @@ export default {
       },
       rules: {
         username: [
-            { required: true, trigger: 'blur',message: '请输入用户名' }
+            { required: true, trigger: 'change',message: '请输入用户名' }
         ],
         password: [
-            { required: true, trigger: 'blur',message: '请输入密码' }
+            { required: true, trigger: 'change',message: '请输入密码' }
         ]
       }
     }    
@@ -81,13 +81,31 @@ export default {
             username : loginForm.username,
             token: res.data.token
           }
-          console.log("登录成功")
-          this.$store.commit('saveToken', 'nihao')
-        } else if (res.data.code == 403 ) {
-          console.log("登录失败，用户名或密码错误！")
+          console.log("token", res.data.token)
+          ElNotification.success({
+              title: '提示',
+              message: res.data.msg,
+              showClose: true,
+              offset: 70
+          })
+          this.$router.push({ path: '/home' })  // 登录跳转
+          this.$store.commit('saveToken', res.data.token)  // 保存token
+          localStorage.setItem("username", this.loginForm.username)  // 保存用户名
+        } else {
+          ElNotification.error({
+              title: '提示',
+              message: res.data.msg,
+              showClose: true,
+          })
+          this.$store.commit('clearToken')
+          localStorage.removeItem("username")
         }
       }).catch(err=>{
-        console.log("出现错误")
+          ElNotification.error({
+              title: '提示',
+              message: "登录出错，请重试",
+              showClose: true,
+          })
       })
     },
     resetForm(loginForm){

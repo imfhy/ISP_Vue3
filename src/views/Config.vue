@@ -5,12 +5,18 @@
             <span>排程调整</span>
         </div>
         </template>
-        <el-form :model="form" label-width="auto" label-position="right">
+
+            <el-form-item>
+                <el-button type="primary" @click="onSubmit">保存</el-button>
+                <el-button>取消</el-button>
+            </el-form-item>
+            
+        <el-form :model="form" label-width="auto" label-position="right" :rules="rules">
             <el-alert title="权重调整" type="info" style="margin-bottom: 12px;" :closable="false" />
             <el-row>
                 <el-col :span="8">
                     <el-form-item label="overdue权重:">
-                        <el-input v-model="form.overdue" />
+                        <el-input oninput="value=value.replace(/[^0-9.]/g,'')" v-model="form.overdue" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="8">
@@ -20,7 +26,7 @@
                 </el-col>
                 <el-col :span="8">
                     <el-form-item label="Line balance权重:">
-                        <el-input v-model="form.Line_balancee" />
+                        <el-input v-model="form.Line_balance" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -184,7 +190,7 @@
             <el-row>
                 <el-col :span="4">
                     <el-form-item label="程序约束:">
-                        <el-switch v-model="form.is_pprogram_constraints" />
+                        <el-switch v-model="form.is_program_constraints" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="4">
@@ -198,16 +204,13 @@
                     </el-form-item>
                 </el-col>
             </el-row>
-
-            <el-form-item>
-                <el-button type="primary" @click="onSubmit">保存</el-button>
-                <el-button>取消</el-button>
-            </el-form-item>
         </el-form>
     </el-card>
 </template>
 
 <script>
+import { GetConfigData } from '@/utils/api.js'
+import { ElNotification, ElMessage, ElLoading } from 'element-plus'
 export default {
     data () {
         return {
@@ -245,18 +248,73 @@ export default {
                 is_blocktime_constraints: true,
                 is_updown_constraints: true,
                 is_daytime_constraints: true,
-                is_pprogram_constraints: true,
+                is_program_constraints: true,
                 is_first_constraints: true,
                 is_xxdaytime_constraints: true,
             },
-            value4: ""
+            value4: "",
+            rules: {
+                overdue: [
+                    { required: true, message: "该字段不允许为空", trigger: "blur" }
+                ],
+                idle: [
+                    { required: true, message: "该字段不允许为空", trigger: "blur" }
+                ],
+            },
         }
     },
     mounted(){
-
+        this.getConfigData()
     },
     methods:{
+        getConfigData(){
+            GetConfigData().then(res=>{
+                let form_data = res.data.config_data[0]
+                this.form.overdue = form_data.overdue_weight;
+                this.form.idle = form_data.idle_weight;
+                this.form.Line_balance = form_data.line_balance_weight;
+                this.form.big_line = form_data.big_line_weight;
+                this.form.lock_idle = form_data.lock_time_idle_weight;
 
+                this.form.default_require_date = form_data.default_unknown_require_day;
+                this.form.ndays_require = form_data.threshold_duedate;
+                this.form.ndays_due = form_data.threshold_release;
+                this.form.big_small = form_data.large_small_punctuated;
+                this.form.repair_mode = form_data.repair_mode;
+
+                this.form.is_pack_holiday = form_data.pack_holiday_flag;
+                this.form.pack_holiday_str = form_data.pack_holiday_interval_str;
+
+                this.form.is_parallel = form_data.use_parallel;
+                this.form.is_open_solution = form_data.deep_search;
+
+                this.form.sm13_down = form_data.sm13_buttom_new_machine_predict;
+                this.form.sm21_up_predict = form_data.sm21_top_led_threshold;
+                this.form.sm21_up_less_apacity = form_data.sm21_top_le_predict;
+                this.form.sm21_up_more_apacity = form_data.sm21_top_gt_predict;
+                this.form.led_additional = form_data.led_extra_setup_time;
+                
+                this.form.is_preprocess = form_data.need_preprocess;
+                this.form.is_group = form_data.need_dispatch;
+                this.form.is_repair = form_data.need_repair;
+                this.form.is_tabu = form_data.use_tabu;
+                this.form.is_insert_lock = form_data.use_insert_lock;
+
+                this.form.is_blocktime_constraints = form_data.block_time_rule;
+                this.form.is_updown_constraints = form_data.buffer_time_rule;
+                this.form.is_daytime_constraints = form_data.day_shift_time_rule;
+                this.form.is_program_constraints = form_data.skip_first_group_rule;
+                this.form.is_first_constraints = form_data.skip_first_group_rule;
+                this.form.is_xxdaytime_constraints = form_data.force_day_shift_time_rule;
+            }).catch(err=>{
+                ElNotification.error({
+                    title: '提示',
+                    message: "获取表格数据失败",
+                    showClose: true,
+                    offset: 60
+                })
+            })
+        }
     }
 }
 </script>

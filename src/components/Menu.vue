@@ -6,7 +6,7 @@
       background-color="white"
       text-color="black"
       style="min-height: 1000px"
-      active-text-color="#409EFF"
+      active-text-color="#15ae6d"
       :collapse="isCollapse"
       router>
       <el-menu-item index="/home">

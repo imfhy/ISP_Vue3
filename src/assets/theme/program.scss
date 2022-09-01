@@ -1,0 +1,24 @@
+@import "var.scss";
+.box-card{
+    margin: $--box-margin;
+}
+.box-table{
+    margin: $--box-margin;
+    height: 800px;
+}
+.upload-file{
+    display: inline;
+    margin-left: 10px;
+    position: absolute;
+}
+.el-pagination{
+    text-align: center;
+    margin-top: 10px;
+}
+:deep(.el-card__body){
+    padding: 10px;
+}
+:deep(.el-pagination){
+    text-align: center;
+    margin-top: 10px;
+}

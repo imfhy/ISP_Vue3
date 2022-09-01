@@ -1,16 +1,10 @@
-## isp_vue
-## 需安装node.js 版本v12.22.0（其他版本未测试）
-https://nodejs.org/download/release/v12.22.0/
-## 安装element
-npm install element-plus --save
-## 列宽
-npm install v-fit-columns --save
-## 安装jquery
-npm install jquery
-## 安装element-plus的icon
-npm install @element-plus/icons-vue
+## 需安装node.js 版本v16
+http://nodejs.cn/download/
+## 更换淘宝镜像
+npm install -g cnpm -registry=https://registry.npm.taobao.org
+## 安装脚手架
+cnpm install -g @vue/cli
+## 安装依赖包
+cnpm install
 ## 启动
 npm run serve
-## 配置
-npm install -D unplugin-vue-components unplugin-auto-import
-npm i element-theme -g

@@ -47,71 +47,61 @@
               <span>排程操作</span>
             </div>
           </template>
-          <div>
+
+          <div class="schedule-box">
             <el-alert title="训练预测模型" type="info" :closable="false" />
-            <el-form class="train-box">
-              <div>
-                <div class="block">
-                  <el-date-picker
-                    v-model="train_date"
-                    type="date"
-                    placeholder="请选择训练日期"
-                    :size="size"
-                  />
-                </div>
-              </div>
-              <el-button type="primary"><span>开始训练</span></el-button>
-            </el-form>
+            <div class="button-box">
+              <el-date-picker
+                style="margin-top:8px;"
+                v-model="train_date"
+                type="date"
+                placeholder="选择预测模型日期"
+                :size="size"
+              />
+              <el-button type="primary" style="margin-top:2px;margin-left: 8px;"><span>训练预测模型</span></el-button>
+            </div>
           </div>
           <div class="schedule-box">
             <el-alert title="排程相关操作" type="info" :closable="false" />
             <div class="button-box">
               <el-row>
                 <el-col :span="8">
-                  <el-button type="primary"><span>检查表格</span></el-button>
+                  <el-button type="primary">检查排程表格</el-button>
                 </el-col>
                 <el-col :span="8">
-                <el-upload
-                  name="file"
-                  class="upload-demo"
-                  ref="upload"
-                  action="http://localhost:8080/api/config/compute_schedule/"
-                  accept=".xlsx"
-                  :on-success="successRes"
-                  :show-file-list="false"
-                  :auto-upload="true"
-                  :on-progress="progressUpload" 
-                  >
-                  <el-button slot="trigger" type="primary">计算排程</el-button>
-                </el-upload>
+                <el-button type="primary" @click="computeDialogVisible = true">
+                  计算导入排程
+                </el-button>
                 </el-col>
                 <el-col :span="8">
-                  <el-button type="primary"><span>下载排程</span></el-button>
+                  <el-button type="primary">终止深度搜索</el-button>
                 </el-col>
               </el-row>
-              <el-row>
-                <el-col :span="2"></el-col>
-                <el-col :span="10">
-                  <el-button type="primary"><span>终止深度搜索</span></el-button>
+              <el-row style="margin-top:-8px;">
+                <el-col :span="8">
+                  <el-button type="primary">下载最新排程</el-button>
                 </el-col>
-                <el-col :span="10">
-                  <el-button type="primary"><span>下载无程序表</span></el-button>
+                <el-col :span="8">
+                  <el-button type="primary">下载无程序表</el-button>
                 </el-col>
-                <el-col :span="2"></el-col>
+                <el-col :span="8">
+                  <el-button type="primary">下载最新日志</el-button>
+                </el-col>
               </el-row>
             </div>
           </div>
           <div class="schedule-box">
-            <el-alert title="下载日志操作" type="info" :closable="false" />
+            <el-alert title="下载历史数据" type="info" :closable="false" />
             <div class="button-box">
-              <el-select v-model="value" class="m-2" placeholder="Select">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
+              <el-select v-model="value" class="m-2" placeholder="选择历史日志">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+              <el-button type="primary" style="margin-left: 8px;">下载历史日志</el-button>
             </div>
           </div>
         </el-card>
@@ -123,7 +113,7 @@
               <span>其它操作</span>
             </div>
           </template>
-          <div class="schedule-box">
+          <!-- <div class="schedule-box">
             <el-alert title="接口推送" type="info" :closable="false" />
             <div class="button-box">
               <el-button type="primary"><span>推送正排</span></el-button>
@@ -137,7 +127,7 @@
               <el-button type="primary"><span>下载最新日志</span></el-button>
               <el-button type="primary"><span>下载新上排程</span></el-button>
             </div>
-          </div>
+          </div> -->
         </el-card>
       </el-col>
       <el-col :span="6">
@@ -172,7 +162,82 @@
       </el-col>
     </el-row>
   </div>
-  <el-dialog></el-dialog>
+  <el-dialog
+      v-model="computeDialogVisible"
+      title="计算导入排程"
+      width="40%"
+      :before-close="handleClose"
+      >
+      <el-steps :active="step_now" finish-status="success" simple>
+        <el-step title="选择文件" />
+        <el-step title="导入排程" />
+        <el-step title="更新数据" />
+        <el-step title="计算排程" />
+      </el-steps>
+      
+      <!-- <el-alert title="1.导入排程数据" type="info" :closable="false" style="margin-top: 10px;" /> -->
+        <!-- <el-upload
+        name="file"
+        class="upload-demo"
+        ref="upload"
+        action="http://localhost:8080/api/config/compute_schedule/"
+        accept=".xlsx"
+        :on-success="successRes"
+        :show-file-list="false"
+        :auto-upload="true"
+        :on-progress="progressUpload" 
+        >
+        <el-button slot="trigger" type="primary"><el-icon><UploadFilled /></el-icon>选择排程文件</el-button>
+      </el-upload> -->
+      <el-row style="margin-top:10px;">
+        <el-col :span="8">
+          <el-input placeholder="请选择排程文件" disabled></el-input>
+        </el-col>
+        <el-col :span="16">
+          <el-upload
+          ref="upload"
+          class="upload-demo"
+          action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+          :limit="1"
+          :on-exceed="handleExceed"
+          :auto-upload="false"
+          :show-file-list="false"
+          >
+            <template #trigger>
+              <el-button type="primary" style="margin-left:10px;">选择排程文件</el-button>
+            </template>
+            <el-button style="margin-left:10px;" type="success" @click="submitUpload">
+              导入文件
+            </el-button>
+          </el-upload>
+        </el-col>
+      </el-row>
+    <el-alert title="更新排程信息" type="info" :closable="false" style="margin-top: 10px;" />
+    <div class="schedule-box">
+      <el-row>
+        <el-col :span="24">
+          <el-button type="primary">更新钢板信息</el-button>
+          <el-button type="success">导出检查</el-button>
+        </el-col>
+      </el-row>
+    </div>
+    <el-alert title="计算排程表格" type="info" :closable="false" style="margin-top: 0px;" />
+    <div class="schedule-box">
+      <el-row>
+        <el-col :span="8">
+          <el-button type="primary">开始计算排程</el-button>
+        </el-col>
+        <el-col :span="8">
+          
+        </el-col>
+      </el-row>
+    </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="computeDialogVisible = false">关闭</el-button>
+      </span>
+    </template>
+</el-dialog>
 </template>
 
 <script>
@@ -181,6 +246,7 @@ import { GetProgress } from '@/utils/api.js'
 export default {
   data(){
     return{
+      // 进度条相关
       percentage_1: 0,
       percentage_2: 0,
       percentage_3: 0,
@@ -193,13 +259,26 @@ export default {
 
       uploadFiles: [],   // excel文件列表
       file_name: "",   // excel文件列表
-      loadingInstance: null,
-      progress_interval: null
+      loadingInstance: null,  // 加载动画
+      progress_interval: null,
+
+      train_date: '',  // 预测模型日期
+
+      computeDialogVisible: false,  // 计算排程弹窗
+
+      Form: {
+        filename:'',
+      },
+
+      step_now: 0,  // 计算导入排程当前步骤
     }
   },
   methods:{
     computeSchedule(){
       
+    },
+    handleChange(file, fileList){
+        this.Form.filename=file.name;
     },
     successRes(response, file, fileList) { //文件上传成功之后
       // this.loadingInstance.close();

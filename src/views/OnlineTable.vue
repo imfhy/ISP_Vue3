@@ -18,14 +18,28 @@
         </el-upload>
         <!-- <el-button type="primary">获取</el-button> -->
         <el-button type="primary" @click="checkExcel()">
-          检查
+          <el-icon><SuccessFilled /></el-icon>检查排程
+        </el-button>
+        <el-button type="primary" @click="checkExcel()" class="api-button">
+          <el-icon><Promotion /></el-icon>接口更新
+        </el-button>
+        <el-button type="primary" @click="computeExcel()">
+          <el-icon><Platform /></el-icon>计算排程
+        </el-button>
+        <el-button type="primary" @click="downloadExcel()">
+          <el-icon><download /></el-icon>下载排程
+        </el-button>
+        <el-button type="primary" @click="downloadExcel()" class="api-button">
+          <el-icon><Promotion /></el-icon>推送排程
         </el-button>
         <!-- <el-button type="primary" @click="checkData()">
           后端检查
         </el-button> -->
-        <el-button type="primary" @click="dialogVisible = true">分析排程</el-button>
+        <el-button type="primary" @click="dialogVisible = true">
+          <el-icon><HelpFilled /></el-icon>分析排程
+        </el-button>
         <el-button type="primary" @click="downloadExcel()" style="margin-right: 12px">
-          <el-icon><download /></el-icon>下载表格
+          <el-icon><download /></el-icon>下载在线表格
         </el-button>
         <!-- <el-upload
           class="upload-demo"
@@ -40,7 +54,7 @@
           <el-button slot="trigger" type="primary" style="margin-right: 12px">
             <el-icon><UploadFilled /></el-icon>上传表格</el-button>
         </el-upload> -->
-        <el-select class="myselect" v-model="value_lock_state" placeholder="选择历史排程">
+        <el-select v-model="value_lock_state" placeholder="选择历史排程">
           <el-option
             v-for="item in options_lock_state"
             :key="item.value"
@@ -48,6 +62,9 @@
             :value="item.value">
           </el-option>
         </el-select>
+        <el-button type="primary" @click="downloadExcel()" style="margin-left: 12px;float: right;">
+          获取
+        </el-button>
       </el-row>
     </el-card>
         <el-dialog

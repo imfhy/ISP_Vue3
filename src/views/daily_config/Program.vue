@@ -401,7 +401,7 @@ export default {
         },
 
         uploadFiles: [],   // excel文件列表
-        file_name: "",   // excel文件列表
+        file_name: "",
 
         loadingInstance: null,  // 动画实例
         // 表单验证

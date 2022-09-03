@@ -24,3 +24,6 @@ export const CheckData = (data) => request.post('/config/check_luckysheet_data/'
 export const GetAnaProgress = (data) => request.post('/config/get_analysis_progress/', data); // 获取分析排程进度条信息
 export const GetProgress = () => request.get('/config/get_progress/'); // 获取分析排程进度条信息
 export const AnalysisData = (data) => request.post('/config/analysis_schedule/', data); // 获取分析排程进度条信息
+
+// 控制面板相关接口
+export const CheckExcel = (data) => request.post('/preprocess/schedule/check_input_excel', data)

@@ -191,17 +191,19 @@
       </el-upload> -->
       <el-row style="margin-top:10px;">
         <el-col :span="8">
-          <el-input placeholder="请选择排程文件" disabled></el-input>
+          <el-input placeholder="请选择排程文件" :value="upload_file_name"></el-input>
         </el-col>
         <el-col :span="16">
           <el-upload
-          ref="upload"
-          class="upload-demo"
-          action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-          :limit="1"
-          :on-exceed="handleExceed"
-          :auto-upload="false"
-          :show-file-list="false"
+            ref="upload"
+            class="upload-demo"
+            action="http://localhost:8080/api/preprocess/schedule/check_input_excel/"
+            :limit="1"
+            :on-change="handleChange"
+            :on-progress="handleProgress"
+            :on-success="handleSuccess"
+            :auto-upload="false"
+            :show-file-list="false"
           >
             <template #trigger>
               <el-button type="primary" style="margin-left:10px;">选择排程文件</el-button>
@@ -266,19 +268,58 @@ export default {
 
       computeDialogVisible: false,  // 计算排程弹窗
 
-      Form: {
-        filename:'',
-      },
-
       step_now: 0,  // 计算导入排程当前步骤
+
+      upload_file_name: "上传的文件名",
+      upload_file: null,
     }
   },
   methods:{
     computeSchedule(){
       
     },
-    handleChange(file, fileList){
-        this.Form.filename=file.name;
+    handleChange(file, fileList) {
+      console.log(file)
+      if(file.status == 'ready') {
+        if (fileList.length > 0) {
+          this.uploadFiles = fileList = [fileList[fileList.length - 1]] // 选择最后一次选择文件
+          this.file_name = this.uploadFiles[0].name  // 更新文件名
+          console.log(this.file_name)
+        }
+        this.upload_file_name = file.name
+        this.$refs.upload.submit();
+        this.upload_file = file
+      }
+    },
+    handleProgress(){
+        // 加载动画
+        this.loadingInstance = ElLoading.service({
+            text:'检查中，请稍等...',
+            background: 'rgba(0, 0, 0, 0.5)'
+        });
+    },
+    handleSuccess(res){
+      this.loadingInstance.close();  // 清除动画
+      if(res.type == "success"){
+        this.$alert(res.msg, "提示", {
+          confirmButtonText: '确定',
+          type: "success",
+        })
+      } else {
+        this.$alert(res.msg, "提示", {
+          confirmButtonText: '确定',
+          type: "warning",
+        })
+      }
+      this.step_now = 1
+      console.log(res)
+    },
+    submitUpload(){
+      // 加载动画
+      this.loadingInstance = ElLoading.service({
+        text:'导入中，请稍等...',
+        background: 'rgba(0, 0, 0, 0.5)'
+      });
     },
     successRes(response, file, fileList) { //文件上传成功之后
       // this.loadingInstance.close();

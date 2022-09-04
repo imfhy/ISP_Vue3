@@ -243,8 +243,8 @@
 </template>
 
 <script>
-import { ElLoading } from 'element-plus'
-import { GetProgress } from '@/utils/api.js'
+import { ElLoading, ElMessage } from 'element-plus'
+import { GetProgress,importSchedule } from '@/utils/api.js'
 export default {
   data(){
     return{
@@ -270,7 +270,7 @@ export default {
 
       step_now: 0,  // 计算导入排程当前步骤
 
-      upload_file_name: "上传的文件名",
+      upload_file_name: "未选择排程文件",
       upload_file: null,
     }
   },
@@ -284,11 +284,10 @@ export default {
         if (fileList.length > 0) {
           this.uploadFiles = fileList = [fileList[fileList.length - 1]] // 选择最后一次选择文件
           this.file_name = this.uploadFiles[0].name  // 更新文件名
-          console.log(this.file_name)
         }
         this.upload_file_name = file.name
-        this.$refs.upload.submit();
         this.upload_file = file
+        this.$refs.upload.submit();
       }
     },
     handleProgress(){
@@ -320,6 +319,34 @@ export default {
         text:'导入中，请稍等...',
         background: 'rgba(0, 0, 0, 0.5)'
       });
+      const form = new FormData();
+      form.append("file", this.upload_file.raw);
+      console.log("表单测试", form.get("file"))
+      importSchedule(form).then(res=>{
+        console.log(res)
+        if(res.data.code==400){
+          ElMessage({
+            message: res.data.msg,
+            type: "success",
+            offset: 70
+          })
+          this.step_now = 1
+        } else {
+          ElMessage({
+            message: "导入失败",
+            type: "error",
+            offset: 70
+          })
+        }
+      }).catch(err=>{
+        console.log("发生错误，导入失败：", err)
+        ElMessage({
+          message: "发生错误，导入失败",
+          type: "error",
+          offset: 70
+        })
+      })
+      this.loadingInstance.close();
     },
     successRes(response, file, fileList) { //文件上传成功之后
       // this.loadingInstance.close();

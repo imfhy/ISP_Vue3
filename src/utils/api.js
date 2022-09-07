@@ -26,5 +26,11 @@ export const GetProgress = () => request.get('/config/get_progress/'); // 获取
 export const AnalysisData = (data) => request.post('/config/analysis_schedule/', data); // 获取分析排程进度条信息
 
 // 控制面板相关接口
-export const CheckExcel = (data) => request.post('/preprocess/schedule/check_input_excel/', data);
-export const importSchedule = (data) => request.post('/preprocess/schedule/import_schedule/', data);
+export const CheckExcel = (data) => request.post('/preprocess/schedule/check_input_excel/', data);  // 检查排程表格接口
+export const ImportSchedule = (data) => request.post('/preprocess/schedule/import_schedule/', data);  // 导入排程接口
+export const ComputSchedule = () => request.get('/preprocess/schedule/compute_schedule/')  // 计算排程接口
+export const TrainModel = (data) => request.post('/preprocess/schedule/train_model/', data)  // 训练预测模型接口
+export const StopTabu = () => request.get('/preprocess/schedule/stop/')  // 终止深度搜索接口
+export const DownloadSchedule = () => request.get('/preprocess/schedule/download/')  // 下载最新排程接口
+export const DownloadLog = () => request.get('/preprocess/schedule/download_log/')  // 下载最新日志接口
+export const DownloadNoProgram = () => request.get('/preprocess/schedule/download_program/')  // 下载无程序表接口

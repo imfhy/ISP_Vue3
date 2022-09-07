@@ -40,6 +40,30 @@
           </div>
         </el-card>
       </el-col>
+      <el-col :span="6">
+        <el-card class="box-card" shadow="never">
+          <template #header>
+            <div class="card-header" style="text-align:center">
+              <span>常用配置</span>
+            </div>
+          </template>
+          <!-- <div class="schedule-box">
+            <el-alert title="接口推送" type="info" :closable="false" />
+            <div class="button-box">
+              <el-button type="primary"><span>推送正排</span></el-button>
+              <el-button type="primary"><span>推送预排</span></el-button>
+              <el-button type="primary"><span>推送其它</span></el-button>
+            </div>
+          </div>
+          <div class="schedule-box">
+            <el-alert title="下载相关" type="info" :closable="false" />
+            <div class="button-box">
+              <el-button type="primary"><span>下载最新日志</span></el-button>
+              <el-button type="primary"><span>下载新上排程</span></el-button>
+            </div>
+          </div> -->
+        </el-card>
+      </el-col>
       <el-col :span="6"><div class="grid-content ep-bg-purple" />
         <el-card class="box-card" shadow="never">
           <template #header>
@@ -58,7 +82,9 @@
                 placeholder="选择预测模型日期"
                 :size="size"
               />
-              <el-button type="primary" style="margin-top:2px;margin-left: 8px;"><span>训练预测模型</span></el-button>
+              <el-button type="primary" @click="trainModel" style="margin-top:2px;margin-left: 8px;">
+                训练预测模型
+              </el-button>
             </div>
           </div>
           <div class="schedule-box">
@@ -66,7 +92,21 @@
             <div class="button-box">
               <el-row>
                 <el-col :span="8">
-                  <el-button type="primary">检查排程表格</el-button>
+                  <el-upload
+            ref="upload"
+            class="upload-demo"
+            action="http://localhost:8080/api/preprocess/schedule/check_input_excel/"
+            :limit="1"
+            :on-change="handleChange"
+            :on-progress="handleProgress"
+            :on-success="handleSuccess"
+            :auto-upload="false"
+            :show-file-list="false"
+          >
+            <template #trigger>
+              <el-button type="primary">检查排程表格</el-button>
+            </template>
+          </el-upload>
                 </el-col>
                 <el-col :span="8">
                 <el-button type="primary" @click="computeDialogVisible = true">
@@ -74,18 +114,18 @@
                 </el-button>
                 </el-col>
                 <el-col :span="8">
-                  <el-button type="primary">终止深度搜索</el-button>
+                  <el-button type="primary" @click="stopTabu">终止深度搜索</el-button>
                 </el-col>
               </el-row>
               <el-row style="margin-top:-8px;">
                 <el-col :span="8">
-                  <el-button type="primary">下载最新排程</el-button>
+                  <el-button type="primary" @click="downloadSchedule">下载最新排程</el-button>
                 </el-col>
                 <el-col :span="8">
-                  <el-button type="primary">下载无程序表</el-button>
+                  <el-button type="primary" @click="downloadNoProgram">下载无程序表</el-button>
                 </el-col>
                 <el-col :span="8">
-                  <el-button type="primary">下载最新日志</el-button>
+                  <el-button type="primary" @click="downloadLog">下载最新日志</el-button>
                 </el-col>
               </el-row>
             </div>
@@ -104,30 +144,6 @@
               <el-button type="primary" style="margin-left: 8px;">下载历史日志</el-button>
             </div>
           </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card class="box-card" shadow="never">
-          <template #header>
-            <div class="card-header" style="text-align:center">
-              <span>其它操作</span>
-            </div>
-          </template>
-          <!-- <div class="schedule-box">
-            <el-alert title="接口推送" type="info" :closable="false" />
-            <div class="button-box">
-              <el-button type="primary"><span>推送正排</span></el-button>
-              <el-button type="primary"><span>推送预排</span></el-button>
-              <el-button type="primary"><span>推送其它</span></el-button>
-            </div>
-          </div>
-          <div class="schedule-box">
-            <el-alert title="下载相关" type="info" :closable="false" />
-            <div class="button-box">
-              <el-button type="primary"><span>下载最新日志</span></el-button>
-              <el-button type="primary"><span>下载新上排程</span></el-button>
-            </div>
-          </div> -->
         </el-card>
       </el-col>
       <el-col :span="6">
@@ -218,7 +234,7 @@
     <div class="schedule-box">
       <el-row>
         <el-col :span="24">
-          <el-button type="primary">更新钢板信息</el-button>
+          <el-button type="primary">更新钢板程序信息</el-button>
           <el-button type="success">导出检查</el-button>
         </el-col>
       </el-row>
@@ -227,7 +243,7 @@
     <div class="schedule-box">
       <el-row>
         <el-col :span="8">
-          <el-button type="primary">开始计算排程</el-button>
+          <el-button type="primary" @click="computeSchedule">开始计算排程</el-button>
         </el-col>
         <el-col :span="8">
           
@@ -244,7 +260,8 @@
 
 <script>
 import { ElLoading, ElMessage } from 'element-plus'
-import { GetProgress,importSchedule } from '@/utils/api.js'
+import { GetProgress,ImportSchedule,ComputSchedule,TrainModel,StopTabu,DownloadSchedule,DownloadLog,DownloadNoProgram } from '@/utils/api.js'
+import axios from 'axios';
 export default {
   data(){
     return{
@@ -264,7 +281,7 @@ export default {
       loadingInstance: null,  // 加载动画
       progress_interval: null,
 
-      train_date: '',  // 预测模型日期
+      train_date: new Date(),  // 预测模型日期
 
       computeDialogVisible: false,  // 计算排程弹窗
 
@@ -311,9 +328,129 @@ export default {
         })
       }
       this.step_now = 1
-      console.log(res)
     },
-    submitUpload(){
+    downloadSchedule(){
+      DownloadSchedule().then(res=>{
+        ElMessage({
+          message: "开始下载",
+          type: "success",
+          offset: 70
+        })
+      }).catch(err=>{
+        ElMessage({
+          message: "发生错误，下载失败",
+          type: "error",
+          offset: 70
+        })
+      })
+    },
+    downloadLog(){
+      DownloadLog().then(res=>{
+        ElMessage({
+          message: "开始下载",
+          type: "success",
+          offset: 70
+        })
+      }).catch(err=>{
+        ElMessage({
+          message: "发生错误，下载失败",
+          type: "error",
+          offset: 70
+        })
+      })
+    },
+    downloadNoProgram(){
+      DownloadNoProgram().then(res=>{
+        ElMessage({
+          message: "开始下载",
+          type: "success",
+          offset: 70
+        })
+      }).catch(err=>{
+        ElMessage({
+          message: "发生错误，下载失败",
+          type: "error",
+          offset: 70
+        })
+      })
+    },
+    computeSchedule(){
+      ComputSchedule().then(res=>{
+        if(res.data.code==200){
+          ElMessage({
+            message: res.data.msg,
+            type: "success",
+            offset: 70
+          })
+          this.step_now = 4
+        } else {
+          ElMessage({
+            message: "计算排程失败",
+            type: "error",
+            offset: 70
+          })
+        }
+      }).catch(err=>{
+        ElMessage({
+          message: "发生错误，开始计算失败",
+          type: "error",
+          offset: 70
+        })
+      })
+    },
+    stopTabu(){
+      this.$confirm('请确认是否要终止深度搜索?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        StopTabu().then(res=>{
+        if(res.data.code==200){
+          ElMessage({
+            message: res.data.msg,
+            type: "success",
+            offset: 70
+          })
+          this.step_now = 2
+        } else {
+          ElMessage({
+            message: "终止失败",
+            type: "error",
+            offset: 70
+          })
+        }
+        }).catch(err=>{
+
+        })
+      })
+    },
+    trainModel(){
+      TrainModel({"end_time": this.train_date}).then(res=>{
+        console.log(res)
+        if(res.data.code==200){
+          ElMessage({
+            message: res.data.msg,
+            type: "success",
+            offset: 70
+          })
+          this.step_now = 2
+        } else {
+          ElMessage({
+            message: "训练失败",
+            type: "error",
+            offset: 70
+          })
+        }
+      }).catch(err=>{
+        console.log("发生错误，训练失败：", err)
+        ElMessage({
+          message: "发生错误，训练失败",
+          type: "error",
+          offset: 70
+        })
+      })
+    },
+    async submitUpload(){
       // 加载动画
       this.loadingInstance = ElLoading.service({
         text:'导入中，请稍等...',
@@ -322,15 +459,15 @@ export default {
       const form = new FormData();
       form.append("file", this.upload_file.raw);
       console.log("表单测试", form.get("file"))
-      importSchedule(form).then(res=>{
+      await axios.post("http://localhost:8080/api/preprocess/schedule/import_schedule/", form).then(res=>{
         console.log(res)
-        if(res.data.code==400){
+        if(res.data.code==200){
           ElMessage({
             message: res.data.msg,
             type: "success",
             offset: 70
           })
-          this.step_now = 1
+          this.step_now = 2
         } else {
           ElMessage({
             message: "导入失败",

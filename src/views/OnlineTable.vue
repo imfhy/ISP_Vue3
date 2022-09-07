@@ -20,26 +20,28 @@
         <el-button type="primary" @click="checkExcel()">
           <el-icon><SuccessFilled /></el-icon>检查排程
         </el-button>
+        <el-button type="primary" @click="dialogVisible = true">
+          <el-icon><HelpFilled /></el-icon>分析排程
+        </el-button>
         <el-button type="primary" @click="checkExcel()" class="api-button">
           <el-icon><Promotion /></el-icon>接口更新
         </el-button>
-        <el-button type="primary" @click="computeExcel()">
+        <!-- <el-button type="primary" @click="computeExcel()">
           <el-icon><Platform /></el-icon>计算排程
-        </el-button>
-        <el-button type="primary" @click="downloadExcel()">
+        </el-button> -->
+        <!-- <el-button type="primary" @click="downloadExcel()">
           <el-icon><download /></el-icon>下载排程
-        </el-button>
-        <el-button type="primary" @click="downloadExcel()" class="api-button">
+        </el-button> -->
+        <el-button type="primary" @click="downloadExcel" class="api-button">
           <el-icon><Promotion /></el-icon>推送排程
         </el-button>
         <!-- <el-button type="primary" @click="checkData()">
           后端检查
         </el-button> -->
-        <el-button type="primary" @click="dialogVisible = true">
-          <el-icon><HelpFilled /></el-icon>分析排程
-        </el-button>
-        <el-button type="primary" @click="downloadExcel()" style="margin-right: 12px">
+        <el-button type="primary" @click="downloadExcel">
           <el-icon><download /></el-icon>下载在线表格
+        </el-button>
+        <el-button type="success" @click="quantifyExcel" style="margin-right:10px;">获取量化结果
         </el-button>
         <!-- <el-upload
           class="upload-demo"
@@ -135,10 +137,10 @@
           <template #footer>
             <span class="dialog-footer">
               <el-button @click="dialogVisible = false">关闭</el-button>
-              <el-button type="primary" @click="analysisExcel()">开始分析</el-button>
-              <el-button type="primary" @click="dialogVisible = false">生成表格</el-button>
-              <el-button type="primary" @click="dialogVisible = false">下载表格</el-button>
-              <el-button type="primary" @click="dialogVisible = false">对比结果</el-button>
+              <el-button type="primary" @click="analysisExcel">开始分析</el-button>
+              <el-button type="primary" @click="generateExcel">生成表格</el-button>
+              <el-button type="primary" @click="downloadExcel">下载表格</el-button>
+              <!-- <el-button type="primary" @click="compareExcel">对比结果</el-button> -->
             </span>
           </template>
         </el-dialog>

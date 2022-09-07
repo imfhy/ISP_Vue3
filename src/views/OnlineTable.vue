@@ -69,81 +69,131 @@
         </el-button>
       </el-row>
     </el-card>
-        <el-dialog
-          v-model="dialogVisible"
-          title="分析排程"
-          width="60%"
-          :before-close="handleClose"
-          >
-            <el-row>
-              <el-col :span="12">
-                <el-card shadow="never" style="height: 330px;margin: 5px;">
-                  <template #header>
-                    <div class="card-header" style="text-align:left">
-                      <span>任务进度</span>
-                    </div>
-                  </template>
-                  <el-progress
-                    :text-inside="true"
-                    :stroke-width="14"
-                    :percentage="percentage_1"
-                    status="success"
-                  />
-                  <el-alert :title="progress_text_1" type="success" :closable="false" />
-                  <el-progress
-                    :text-inside="true"
-                    :stroke-width="14"
-                    :percentage="percentage_1"
-                    status="success"
-                  />
-                  <el-alert :title="progress_text_1" type="success" :closable="false" />
-                  <el-progress
-                    :text-inside="true"
-                    :stroke-width="14"
-                    :percentage="percentage_1"
-                    status="success"
-                  />
-                  <el-alert :title="progress_text_1" type="success" :closable="false" />
-                </el-card>
-              </el-col>
-              <el-col :span="12">
-                <el-card shadow="never" style="height: 330px;margin: 5px;">
-                  <template #header>
-                    <div class="card-header" style="text-align:left">
-                      <span>分析结果</span>
-                    </div>
-                  </template>
-                  <p>0806正排分析</p>
-                  <p>是否可行解</p>
-                  <p>目标值：</p>
-                  <p>逾期：</p>
-                  <p>停顿：</p>
-                  <p>线平衡：</p>
-                  <p>三天总点数：</p>
-                </el-card>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="24">
-                <el-card shadow="never" style="height: 180px;margin: 5px;">
-                  <template #header>
-                    <div class="card-header" style="text-align:left">
-                      <span>提示</span>
-                    </div>
-                  </template>
-                </el-card>
-              </el-col>
-            </el-row>
-          <template #footer>
-            <span class="dialog-footer">
-              <el-button @click="dialogVisible = false">关闭</el-button>
-              <el-button type="primary" @click="analysisExcel">开始分析</el-button>
-              <el-button type="primary" @click="generateExcel">生成表格</el-button>
-              <el-button type="primary" @click="downloadExcel">下载表格</el-button>
-              <!-- <el-button type="primary" @click="compareExcel">对比结果</el-button> -->
-            </span>
-          </template>
-        </el-dialog>
+      <el-dialog
+        v-model="dialogVisible"
+        title="分析排程"
+        width="60%"
+        :before-close="handleClose"
+        >
+        <el-row>
+          <el-col :span="12">
+            <el-card shadow="never" style="height: 330px;margin: 5px;">
+              <template #header>
+                <div class="card-header" style="text-align:left">
+                  <span>任务进度</span>
+                </div>
+              </template>
+              <el-progress
+                :text-inside="true"
+                :stroke-width="14"
+                :percentage="percentage_1"
+                status="success"
+              />
+              <el-alert :title="progress_text_1" type="success" :closable="false" />w
+              <el-progress
+                :text-inside="true"
+                :stroke-width="14"
+                :percentage="percentage_1"
+                status="success"
+              />
+              <el-alert :title="progress_text_1" type="success" :closable="false" />
+              <el-progress
+                :text-inside="true"
+                :stroke-width="14"
+                :percentage="percentage_1"
+                status="success"
+              />
+              <el-alert :title="progress_text_1" type="success" :closable="false" />
+            </el-card>
+          </el-col>
+          <el-col :span="12">
+            <el-card shadow="never" style="height: 330px;margin: 5px;">
+              <template #header>
+                <div class="card-header" style="text-align:left">
+                  <span>分析结果</span>
+                </div>
+              </template>
+              <p>0806正排分析</p>
+              <p>是否可行解</p>
+              <p>目标值：</p>
+              <p>逾期：</p>
+              <p>停顿：</p>
+              <p>线平衡：</p>
+              <p>三天总点数：</p>
+            </el-card>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-card shadow="never" style="height: 180px;margin: 5px;">
+              <template #header>
+                <div class="card-header" style="text-align:left">
+                  <span>提示</span>
+                </div>
+              </template>
+            </el-card>
+          </el-col>
+        </el-row>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="dialogVisible = false">关闭</el-button>
+            <el-button type="primary" @click="analysisExcel">开始分析</el-button>
+            <el-button type="primary" @click="generateExcel">生成表格</el-button>
+            <el-button type="primary" @click="downloadExcel">下载表格</el-button>
+            <!-- <el-button type="primary" @click="compareExcel">对比结果</el-button> -->
+          </span>
+        </template>
+      </el-dialog>
+      <el-dialog
+        v-model="dialogVisible_quantify"
+        width="70%"
+        title="量化结果"
+      >
+      <el-row :gutter="12">
+        <el-col :span="12">
+          <el-card shadow="never">
+          <el-table :data="tableData" @selection-change="tableSelectionHandle" style="width: 100%;height:600px;" stripe>
+            <el-table-column label="线体">
+              <template v-slot="scope">
+                <span style="user-select:none;" v-show="!scope.row.iseditor">{{scope.row.line}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="点数类别">
+              <template v-slot="scope">
+                <span style="user-select:none;" v-show="!scope.row.iseditor">{{scope.row.points_type}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="点数">
+              <template v-slot="scope">
+                <span v-show="!scope.row.iseditor">{{scope.row.points}}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+          </el-card>
+        </el-col>
+        <el-col :span="12">
+          <el-card shadow="never">
+          <el-table :data="tableData2" @selection-change="tableSelectionHandle" style="width: 100%" stripe>
+            <el-table-column label="量化类型">
+              <template v-slot="scope">
+                <span style="user-select:none;" v-show="!scope.row.iseditor">{{scope.row.type}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="量化结果(小时)">
+              <template v-slot="scope">
+                <span v-show="!scope.row.iseditor">{{scope.row.hours}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="量化结果(天)">
+              <template v-slot="scope">
+                <span v-show="!scope.row.iseditor">{{scope.row.days}}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+          </el-card>
+        </el-col>
+      </el-row>
+      </el-dialog>
     <div id="luckysheet" class="box-luckysheet"></div>
   </div>
 </template>
@@ -152,7 +202,7 @@
 import LuckySheet from '../components/LuckySheet.vue'
 import LuckyExcel from 'luckyexcel'
 import XLSX from 'xlsx'
-import { CheckData, AnalysisData } from '@/utils/api.js'
+import { CheckData, AnalysisData, QuantifyData } from '@/utils/api.js'
 import { ElLoading } from 'element-plus'
 export default {
   name: "luckysheet",
@@ -178,12 +228,16 @@ export default {
 
       loadingInstance:null,
       dialogVisible: false,
+      dialogVisible_quantify: false,
       progress_text_1: "预处理|未开始",
       progress_text_2: "分析|未开始",
       progress_text_3: "输出|未开始",
       percentage_1: 0,
       percentage_2: 0,
       percentage_3: 0,
+
+      tableData: [],
+      tableData2: [],
     }
   },
   mounted() {
@@ -219,6 +273,21 @@ export default {
         this.checkAlert("提示", "分析排程测试！", "success")
       }).catch(err=>{
         this.checkAlert("警告","分析排程测试！", "warning")
+      })
+    },
+    quantifyExcel(){
+      this.dialogVisible_quantify = true
+      let wb = this.get_sheet_js(false); // luckysheet获取sheet，并且转化为SheetJS的格式
+      let blob = this.workbook2blob(wb);  // SheetJS转化为文件流
+      let form_data = new FormData(); // 新建表单
+      form_data.append('files', blob);  // 在线表格文件流
+      QuantifyData(form_data).then(res=>{
+        this.checkAlert("提示", "量化测试通过！", "success")
+        console.log("拿到数据：", res)
+        this.tableData = res.data.table_data
+        this.tableData2 = res.data.table_data2
+      }).catch(err=>{
+        this.checkAlert("警告","量化测试失败！", "warning")
       })
     },
     loadExcelFile(file, fileList) {

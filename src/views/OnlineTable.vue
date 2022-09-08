@@ -148,19 +148,22 @@
         v-model="dialogVisible_quantify"
         width="70%"
         title="量化结果"
+        :before-close="handleClose_2" 
       >
-      <el-row :gutter="12">
-        <el-col :span="12">
+      <el-row :gutter="10">
+        <el-col :span="8">
           <el-card shadow="never">
-          <el-table :data="tableData" @selection-change="tableSelectionHandle" style="width: 100%;height:600px;" stripe>
+          <el-table :data="tableData" @selection-change="tableSelectionHandle" style="width: 100%;height:600px;" 
+          :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+          >
             <el-table-column label="线体">
               <template v-slot="scope">
-                <span style="user-select:none;" v-show="!scope.row.iseditor">{{scope.row.line}}</span>
+                <span style="user-select:none;font-weight: bold;">{{scope.row.line}}</span>
               </template>
             </el-table-column>
             <el-table-column label="点数类别">
               <template v-slot="scope">
-                <span style="user-select:none;" v-show="!scope.row.iseditor">{{scope.row.points_type}}</span>
+                <span style="user-select:none;">{{scope.row.points_type}}</span>
               </template>
             </el-table-column>
             <el-table-column label="点数">
@@ -171,25 +174,64 @@
           </el-table>
           </el-card>
         </el-col>
-        <el-col :span="12">
+
+        <el-col :span="8">
           <el-card shadow="never">
-          <el-table :data="tableData2" @selection-change="tableSelectionHandle" style="width: 100%" stripe>
-            <el-table-column label="量化类型">
-              <template v-slot="scope">
-                <span style="user-select:none;" v-show="!scope.row.iseditor">{{scope.row.type}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="量化结果(小时)">
-              <template v-slot="scope">
-                <span v-show="!scope.row.iseditor">{{scope.row.hours}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="量化结果(天)">
-              <template v-slot="scope">
-                <span v-show="!scope.row.iseditor">{{scope.row.days}}</span>
-              </template>
-            </el-table-column>
-          </el-table>
+            <el-table :data="tableData2" @selection-change="tableSelectionHandle" style="width: 100%;height:285px;" 
+            :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+            >
+              <el-table-column label="量化类型" width="160">
+                <template v-slot="scope">
+                  <span style="user-select:none;font-weight: bold;">{{scope.row.type}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="量化结果(小时)">
+                <template v-slot="scope">
+                  <span v-show="!scope.row.iseditor">{{scope.row.hours}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="量化结果(天)">
+                <template v-slot="scope">
+                  <span v-show="!scope.row.iseditor">{{scope.row.days}}</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+        
+          <el-card shadow="never" style="margin-top:10px">
+            <el-table :data="tableData3" @selection-change="tableSelectionHandle" style="width: 100%;height:285px;" 
+            :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+            >
+              <el-table-column label="量化类型">
+                <template v-slot="scope">
+                  <span style="user-select:none;font-weight: bold;">{{scope.row.type}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="总点数">
+                <template v-slot="scope">
+                  <span v-show="!scope.row.iseditor">{{scope.row.points}}</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+        </el-col>
+
+        <el-col :span="8">
+          <el-card shadow="never">
+            <el-table :data="tableData4" @selection-change="tableSelectionHandle" style="width: 100%;height:600px;" 
+            :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+            >
+              <el-table-column label="线体" width="160">
+                <template v-slot="scope">
+                  <span style="user-select:none;font-weight: bold;">{{scope.row.line}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="线体完工时间">
+                <template v-slot="scope">
+                  <span >{{scope.row.time}}</span>
+                </template>
+              </el-table-column>
+            </el-table>
           </el-card>
         </el-col>
       </el-row>
@@ -203,7 +245,7 @@ import LuckySheet from '../components/LuckySheet.vue'
 import LuckyExcel from 'luckyexcel'
 import XLSX from 'xlsx'
 import { CheckData, AnalysisData, QuantifyData } from '@/utils/api.js'
-import { ElLoading } from 'element-plus'
+import { ElLoading,ElMessage } from 'element-plus'
 export default {
   name: "luckysheet",
   components: {
@@ -238,6 +280,8 @@ export default {
 
       tableData: [],
       tableData2: [],
+      tableData3: [],
+      tableData4: [],
     }
   },
   mounted() {
@@ -255,6 +299,17 @@ export default {
       })
       .catch(_ => {});
     },
+    handleClose_2(done) {
+      this.$confirm('请确认是否要关闭量化窗口？', '提示', {
+        type: "warning",
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+      })
+      .then(_ => {
+        done();
+      })
+      .catch(_ => {});
+    },
     init_luckysheet() {
       var options = {
           container: "luckysheet",
@@ -262,6 +317,15 @@ export default {
           showinfobar: false, // 不显示luckysheet图标
       };
       luckysheet.create(options);
+    },
+    handleProgress(){
+      this.loadingInstance = ElLoading.service({
+          text:'上传中,请稍等...',
+          background: 'rgba(0, 0, 0, 0.5)'
+      });
+    },
+    handleSuccess(){
+      this.loadingInstance.close();
     },
     analysisExcel(){
       let wb = this.get_sheet_js(false); // luckysheet获取sheet，并且转化为SheetJS的格式
@@ -276,18 +340,32 @@ export default {
       })
     },
     quantifyExcel(){
+      // 表格为空
+      if (!window.luckysheet.getCellValue(0, 0)) {
+        this.checkAlert("警告", "未检测到数据!", "warning")
+        return
+      }
       this.dialogVisible_quantify = true
       let wb = this.get_sheet_js(false); // luckysheet获取sheet，并且转化为SheetJS的格式
       let blob = this.workbook2blob(wb);  // SheetJS转化为文件流
       let form_data = new FormData(); // 新建表单
       form_data.append('files', blob);  // 在线表格文件流
       QuantifyData(form_data).then(res=>{
-        this.checkAlert("提示", "量化测试通过！", "success")
-        console.log("拿到数据：", res)
+        ElMessage({
+          message: "量化成功",
+          type: "success",
+          offset: 70
+        })
         this.tableData = res.data.table_data
         this.tableData2 = res.data.table_data2
+        this.tableData3 = res.data.table_data3
+        this.tableData4 = res.data.table_data4
       }).catch(err=>{
-        this.checkAlert("警告","量化测试失败！", "warning")
+        ElMessage({
+          message: "量化失败",
+          type: "error",
+          offset: 70
+        })
       })
     },
     loadExcelFile(file, fileList) {

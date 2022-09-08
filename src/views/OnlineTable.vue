@@ -207,7 +207,7 @@
                   <span style="user-select:none;font-weight: bold;">{{scope.row.type}}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="总点数">
+              <el-table-column label="值">
                 <template v-slot="scope">
                   <span v-show="!scope.row.iseditor">{{scope.row.points}}</span>
                 </template>

@@ -16,7 +16,6 @@
           <el-button slot="trigger" type="primary" style="margin-right: 12px">
             <el-icon><UploadFilled /></el-icon>上传排程表格</el-button>
         </el-upload>
-        <!-- <el-button type="primary">获取</el-button> -->
         <el-button type="primary" @click="checkExcel()">
           <el-icon><SuccessFilled /></el-icon>检查排程
         </el-button>
@@ -26,36 +25,14 @@
         <el-button type="primary" @click="checkExcel()" class="api-button">
           <el-icon><Promotion /></el-icon>接口更新
         </el-button>
-        <!-- <el-button type="primary" @click="computeExcel()">
-          <el-icon><Platform /></el-icon>计算排程
-        </el-button> -->
-        <!-- <el-button type="primary" @click="downloadExcel()">
-          <el-icon><download /></el-icon>下载排程
-        </el-button> -->
         <el-button type="primary" @click="downloadExcel" class="api-button">
           <el-icon><Promotion /></el-icon>推送排程
         </el-button>
-        <!-- <el-button type="primary" @click="checkData()">
-          后端检查
-        </el-button> -->
         <el-button type="primary" @click="downloadExcel">
           <el-icon><download /></el-icon>下载在线表格
         </el-button>
         <el-button type="success" @click="quantifyExcel" style="margin-right:10px;">获取量化结果
         </el-button>
-        <!-- <el-upload
-          class="upload-demo"
-          ref="upload"
-          action="alert"
-          accept=".xlsx"
-          :show-file-list="false"
-          :auto-upload="false"
-          :file-list="uploadFiles"
-          :on-change="loadExcelFile"
-          >
-          <el-button slot="trigger" type="primary" style="margin-right: 12px">
-            <el-icon><UploadFilled /></el-icon>上传表格</el-button>
-        </el-upload> -->
         <el-select v-model="value_lock_state" placeholder="选择历史排程">
           <el-option
             v-for="item in options_lock_state"
@@ -89,21 +66,21 @@
                 :percentage="percentage_1"
                 status="success"
               />
-              <el-alert :title="progress_text_1" type="success" :closable="false" />w
-              <el-progress
-                :text-inside="true"
-                :stroke-width="14"
-                :percentage="percentage_1"
-                status="success"
-              />
               <el-alert :title="progress_text_1" type="success" :closable="false" />
               <el-progress
                 :text-inside="true"
                 :stroke-width="14"
-                :percentage="percentage_1"
+                :percentage="percentage_2"
                 status="success"
               />
-              <el-alert :title="progress_text_1" type="success" :closable="false" />
+              <el-alert :title="progress_text_2" type="success" :closable="false" />
+              <el-progress
+                :text-inside="true"
+                :stroke-width="14"
+                :percentage="percentage_3"
+                status="success"
+              />
+              <el-alert :title="progress_text_3" type="success" :closable="false" />
             </el-card>
           </el-col>
           <el-col :span="12">
@@ -113,13 +90,13 @@
                   <span>分析结果</span>
                 </div>
               </template>
-              <p>0806正排分析</p>
-              <p>是否可行解</p>
-              <p>目标值：</p>
-              <p>逾期：</p>
-              <p>停顿：</p>
-              <p>线平衡：</p>
-              <p>三天总点数：</p>
+              <p style="font-weight:bold;">0806正排分析</p>
+              <p>是否可行解：{{enable}}</p>
+              <p>目标值：{{obj_value}}</p>
+              <p>逾期：{{overdue}}</p>
+              <p>停顿：{{idle}}</p>
+              <p>线平衡：{{line_balance}}</p>
+              <p>三天总点数：{{points}}</p>
             </el-card>
           </el-col>
         </el-row>
@@ -200,7 +177,7 @@
         
           <el-card shadow="never" style="margin-top:10px">
             <el-table :data="tableData3" @selection-change="tableSelectionHandle" style="width: 100%;height:285px;" 
-            :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+              :header-cell-style="{background:'#eef1f6',color:'#606266'}"
             >
               <el-table-column label="量化类型">
                 <template v-slot="scope">
@@ -244,7 +221,7 @@
 import LuckySheet from '../components/LuckySheet.vue'
 import LuckyExcel from 'luckyexcel'
 import XLSX from 'xlsx'
-import { CheckData, AnalysisData, QuantifyData } from '@/utils/api.js'
+import { CheckData, AnalysisExcel, QuantifyData, GetAnaProgress } from '@/utils/api.js'
 import { ElLoading,ElMessage } from 'element-plus'
 export default {
   name: "luckysheet",
@@ -282,12 +259,59 @@ export default {
       tableData2: [],
       tableData3: [],
       tableData4: [],
+
+      schedule_mode: "",  // 正排/预排：时间
+      enable: "",  // 是否可行解
+      obj_value: "",  // 目标值
+      overdue: "",  // 逾期
+      idle: "",  // 停顿
+      line_balance: "",  // 线平衡
+      points: "",  // 总点数
     }
   },
   mounted() {
       this.init_luckysheet();
   },
   methods: {
+    // 分析排程进度条
+    getAnaProgress(){
+      GetAnaProgress().then(res=>{
+        this.percentage_1 = res.data.p0
+        this.percentage_2 = res.data.p1
+        this.percentage_3 = res.data.p2
+        this.progress_text_1 = res.data.p0text
+        this.progress_text_2 = res.data.p1text
+        this.progress_text_3 = res.data.p2text
+        this.run_flag = res.data.run_flag
+      }).catch(err=>{
+        ElMessage({
+          message: "进度条获取失败",
+          type: "error",
+          offset: 70
+        })
+      })
+    },
+    // 开始分析
+    analysisExcel(){
+      let wb = this.get_sheet_js(false); // luckysheet获取sheet，并且转化为SheetJS的格式
+      let blob = this.workbook2blob(wb);  // SheetJS转化为文件流
+      let form_data = new FormData(); // 新建表单
+      form_data.append('files', blob);  // 在线表格文件流e
+      form_data.append('file_name', this.file_name);  // 在线表格文件流
+      AnalysisExcel(form_data).then(res=>{
+        this.checkAlert("提示", "分析排程测试！", "success")
+      }).catch(err=>{
+        this.checkAlert("警告","分析排程测试！", "warning")
+      })
+    },
+    // 生成表格
+    generateExcel(){
+      
+    },
+    // 下载表格
+    downloadExcel(){
+
+    },
     handleClose(done) {
       this.$confirm('请确认是否要关闭分析排程？', '提示', {
         type: "warning",
@@ -326,18 +350,6 @@ export default {
     },
     handleSuccess(){
       this.loadingInstance.close();
-    },
-    analysisExcel(){
-      let wb = this.get_sheet_js(false); // luckysheet获取sheet，并且转化为SheetJS的格式
-      let blob = this.workbook2blob(wb);  // SheetJS转化为文件流
-      let form_data = new FormData(); // 新建表单
-      form_data.append('files', blob);  // 在线表格文件流e
-      form_data.append('file_name', this.file_name);  // 在线表格文件流
-      AnalysisData(form_data).then(res=>{
-        this.checkAlert("提示", "分析排程测试！", "success")
-      }).catch(err=>{
-        this.checkAlert("警告","分析排程测试！", "warning")
-      })
     },
     quantifyExcel(){
       // 表格为空

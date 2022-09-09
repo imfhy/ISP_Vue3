@@ -76,7 +76,7 @@
             <el-alert title="训练预测模型" type="info" :closable="false" />
             <div class="button-box">
               <el-date-picker
-                style="margin-top:8px;"
+                style="margin-top:8px;width:180px;"
                 v-model="train_date"
                 type="date"
                 placeholder="选择预测模型日期"
@@ -133,12 +133,12 @@
           <div class="schedule-box">
             <el-alert title="下载历史数据" type="info" :closable="false" />
             <div class="button-box">
-              <el-select v-model="value" class="m-2" placeholder="选择历史日志">
+              <el-select style="width:180px;" v-model="value" class="m-2" placeholder="选择历史日志">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
                   :label="item.label"
-                  :value="item.value"
+                  :value="item.value" 
                 />
               </el-select>
               <el-button type="primary" style="margin-left: 8px;">下载历史日志</el-button>

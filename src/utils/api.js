@@ -21,9 +21,10 @@ export const GetConfigData = () => request.get('/config/get_configdata/'); // �
 
 // 在线表格相关接口
 export const CheckData = (data) => request.post('/config/check_luckysheet_data/', data); // 检查在线表格
-export const GetAnaProgress = (data) => request.post('/config/get_analysis_progress/', data); // 获取分析排程进度条信息
-export const GetProgress = () => request.get('/config/get_progress/'); // 获取分析排程进度条信息
-export const AnalysisData = (data) => request.post('/config/analysis_schedule/', data); // 获取分析排程进度条信息
+export const GetAnaProgress = () => request.get('/preprocess/excel/progress/'); // 获取分析排程进度条信息
+export const AnalysisExcel = (data) => request.post('/preprocess/excel/get_analysisdata/', data); // 开始分析
+export const GenerateExcel = (data) => request.post('/config/analysis_schedule/', data); // 获取分析排程结果
+export const DownloadAnaExcel = (data) => request.post('/config/analysis_schedule/', data); // 获取分析排程结果
 export const QuantifyData = (data) => request.post('/preprocess/schedule/quantify_excel/', data);  // 获取量化结果
 
 // 控制面板相关接口
@@ -35,3 +36,4 @@ export const StopTabu = () => request.get('/preprocess/schedule/stop/')  // 终�
 export const DownloadSchedule = () => request.get('/preprocess/schedule/download/')  // 下载最新排程接口
 export const DownloadLog = () => request.get('/preprocess/schedule/download_log/')  // 下载最新日志接口
 export const DownloadNoProgram = () => request.get('/preprocess/schedule/download_program/')  // 下载无程序表接口
+export const GetProgress = () => request.get('/config/get_progress/'); // 获取分析排程进度条信息

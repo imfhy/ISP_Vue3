@@ -19,13 +19,13 @@
         <el-button type="primary" @click="checkExcel()">
           <el-icon><SuccessFilled /></el-icon>检查排程
         </el-button>
-        <el-button type="primary" @click="dialogVisible = true">
+        <el-button type="primary" @click="analysis">
           <el-icon><HelpFilled /></el-icon>分析排程
         </el-button>
-        <el-button type="primary" @click="checkExcel()" class="api-button">
+        <el-button type="primary" @click="checkExcel()" class="api-button" disabled>
           <el-icon><Promotion /></el-icon>接口更新
         </el-button>
-        <el-button type="primary" @click="downloadExcel" class="api-button">
+        <el-button type="primary" @click="downloadExcel" class="api-button" disabled>
           <el-icon><Promotion /></el-icon>推送排程
         </el-button>
         <el-button type="primary" @click="downloadExcel">
@@ -35,13 +35,13 @@
         </el-button>
         <el-select v-model="value_lock_state" placeholder="选择历史排程">
           <el-option
-            v-for="item in options_lock_state"
+            v-for="item in options_analysis_data"
             :key="item.value"
             :label="item.label"
             :value="item.value">
           </el-option>
         </el-select>
-        <el-button type="primary" @click="downloadExcel()" style="margin-left: 12px;float: right;">
+        <el-button type="primary" @click="downloadExcel()" style="margin-left: 12px;float: right;" disabled>
           获取
         </el-button>
       </el-row>
@@ -49,7 +49,7 @@
       <el-dialog
         v-model="dialogVisible"
         title="分析排程"
-        width="60%"
+        width="50%"
         :before-close="handleClose"
         >
         <el-row>
@@ -90,13 +90,34 @@
                   <span>分析结果</span>
                 </div>
               </template>
-              <p style="font-weight:bold;">0806正排分析</p>
+              <!-- <p style="font-weight:bold;">{{schedule_time}}-{{schedule_mode}}</p>
               <p>是否可行解：{{enable}}</p>
               <p>目标值：{{obj_value}}</p>
               <p>逾期：{{overdue}}</p>
               <p>停顿：{{idle}}</p>
               <p>线平衡：{{line_balance}}</p>
-              <p>三天总点数：{{points}}</p>
+              <p>三天总点数：{{points}}</p> -->
+              <p style="font-weight:bold;line-height: 90%;">{{schedule_time}}-{{schedule_mode}} 
+                <span style="font-weight:normal;">{{ana_time}}</span>
+              </p>
+              <p style="line-height:160%">
+                是否可行解：{{enable}}<br>
+                目标值：{{obj_value}}<br>
+                逾期：{{overdue}}<br>
+                停顿：{{idle}}<br>
+                线平衡：{{line_balance}}<br>
+                三天总点数：{{points}}<br>
+              </p>
+              <el-select v-model="value_ana_time" placeholder="查看历史分析结果" style="width: 180px;">
+                <el-option
+                  v-for="item in options_analysis_data"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+              <el-button style="margin-left: 5px;" type="info" @click="getAnaSelectData">获取</el-button>
+              <el-button style="margin-left: 5px;" @click="getAnaSelectItem">刷新列表</el-button>
             </el-card>
           </el-col>
         </el-row>
@@ -113,10 +134,10 @@
         </el-row>
         <template #footer>
           <span class="dialog-footer">
-            <el-button @click="dialogVisible = false">关闭</el-button>
-            <el-button type="primary" @click="analysisExcel">开始分析</el-button>
-            <el-button type="primary" @click="generateExcel">生成表格</el-button>
-            <el-button type="primary" @click="downloadExcel">下载表格</el-button>
+            <el-button @click="closeAnalysis">关闭</el-button>
+            <el-button :type="begin_analysis_btn" :disabled="begin_analysis_disable" @click="beginAnalysis">开始分析</el-button>
+            <el-button :type="generate_excel_btn" :disabled="generate_excel_disable" @click="generateExcel">生成表格</el-button>
+            <el-button :type="download_excel_btn" :disabled="download_excel_disable" @click="downloadExcel">下载表格</el-button>
             <!-- <el-button type="primary" @click="compareExcel">对比结果</el-button> -->
           </span>
         </template>
@@ -221,7 +242,7 @@
 import LuckySheet from '../components/LuckySheet.vue'
 import LuckyExcel from 'luckyexcel'
 import XLSX from 'xlsx'
-import { CheckData, AnalysisExcel, QuantifyData, GetAnaProgress } from '@/utils/api.js'
+import { CheckData, AnalysisExcel, GenerateAnaExcel, DownloadAnaExcel, QuantifyData, GetAnaProgress, ClearAnaProgress, GetAnaSelectItem, GetAnaSelectData } from '@/utils/api.js'
 import { ElLoading,ElMessage } from 'element-plus'
 export default {
   name: "luckysheet",
@@ -236,7 +257,7 @@ export default {
       uploadFiles: [],   // excel文件列表
       file_name: "",   // excel文件列表
       options_lock_state: [],
-      value_lock_state: "",
+      value_ana_time: "",
       alert_title: "消息提示",
       alert_type: "info",  // success error warning info
 
@@ -245,12 +266,12 @@ export default {
       all_line_list: [ "SM01", "SM02", "SM09", "SM19", "SM22", "SM23", "SR01", "SR02", "SR03", "SM11", "SM08", 
         "SR09", "SM06", "SM07", "SM15", "SM13", "SM05", "SM21", "SR06", "SM03", "ST01", ],
 
-      loadingInstance:null,
+      loadingInstance: null,
       dialogVisible: false,
       dialogVisible_quantify: false,
       progress_text_1: "预处理|未开始",
       progress_text_2: "分析|未开始",
-      progress_text_3: "输出|未开始",
+      progress_text_3: "输出表格|未开始",
       percentage_1: 0,
       percentage_2: 0,
       percentage_3: 0,
@@ -259,20 +280,75 @@ export default {
       tableData2: [],
       tableData3: [],
       tableData4: [],
+      
+      options_analysis_data:[],
 
-      schedule_mode: "",  // 正排/预排：时间
+      ana_time: "",
+      schedule_mode: "",  // 正排/预排
+      schedule_time: "",  // 排程时间
       enable: "",  // 是否可行解
       obj_value: "",  // 目标值
       overdue: "",  // 逾期
       idle: "",  // 停顿
       line_balance: "",  // 线平衡
       points: "",  // 总点数
+
+      begin_analysis_btn: "primary",  // 开始分析按钮样式
+      begin_analysis_disable: false,
+      generate_excel_btn: "info",  // 生成表格按钮样式
+      generate_excel_disable: true,
+      download_excel_btn: "info",  // 下载表格按钮样式
+      download_excel_disable: true,
+      check_success: false,
+
+      progress_count: 0,
+      ana_refresh: null
     }
   },
   mounted() {
-      this.init_luckysheet();
+    this.init_luckysheet();
   },
   methods: {
+    closeAnalysis(){
+      clearInterval(this.ana_refresh)
+      this.ana_refresh = null
+      this.dialogVisible = false
+    },
+    analysis(){
+      this.dialogVisible = true
+      this.clearAnaProgress()
+      this.begin_analysis_btn = "primary"
+      this.begin_analysis_disable = false
+      this.getAnaSelectItem()
+    },
+    getAnaSelectData(){
+      GetAnaSelectData({"time": this.value_ana_time}).then(res=>{
+        this.showAnaData(res, 1)
+        ElMessage({
+          message: "获取成功",
+          type: "success",
+          offset: 70
+        })
+      }).catch(err=>{
+        ElMessage({
+          message: "获取失败",
+          type: "error",
+          offset: 70
+        })
+      })
+    },
+    // 清空分析排程进度条
+    clearAnaProgress(){
+      ClearAnaProgress().then(res=>{
+        console.log(res.data.msg)
+      }).catch(err=>{
+        ElMessage({
+          message: "清空进度条出现错误",
+          type: "error",
+          offset: 70
+        })
+      })
+    },
     // 分析排程进度条
     getAnaProgress(){
       GetAnaProgress().then(res=>{
@@ -282,7 +358,31 @@ export default {
         this.progress_text_1 = res.data.p0text
         this.progress_text_2 = res.data.p1text
         this.progress_text_3 = res.data.p2text
-        this.run_flag = res.data.run_flag
+        let run_flag = res.data.run_flag
+        if(run_flag == 1 && res.data.p2 > 0 &&this.progress_count == 0){
+          ElMessage({
+            message: "分析完毕，可以生成表格",
+            type: "success",
+            offset: 70
+          })
+          // 分析完成后修改按钮状态
+          this.generate_excel_btn = "primary"
+          this.generate_excel_disable = false
+          this.progress_count = 1
+          // 显示分析排程的结果
+          this.showAnaData(res, 0)
+        } else if(run_flag == 2){
+          clearInterval(this.ana_refresh)
+          this.ana_refresh = null
+          ElMessage({
+            message: "生成表格完毕，可以下载表格",
+            type: "success",
+            offset: 70
+          })
+          // 修改按钮状态
+          this.download_excel_btn = "primary"
+          this.download_excel_disable = false
+        }
       }).catch(err=>{
         ElMessage({
           message: "进度条获取失败",
@@ -291,22 +391,123 @@ export default {
         })
       })
     },
+    // 显示分析排程的结果
+    showAnaData(res, flag){
+      if(flag == 0){
+        this.ana_time = "(最新分析结果)"
+      } else {
+        let time = this.value_ana_time
+        let time_date = time.substring(0, 10)
+        let time_time = time.substring(11).replaceAll("-", ":")
+        time = time_date + " " + time_time
+        // time[13] = ":"
+        this.ana_time = "(分析时间：" + time + ")"
+      }
+
+      this.schedule_mode = res.data.new_mode  // 正排/预排
+      this.schedule_time = res.data.new_time  // 排程时间
+      this.enable = res.data.new_feasible_str  // 是否可行解
+      this.obj_value = res.data.new_obj_value  // 目标值
+      this.overdue = res.data.new_overdue_value  // 逾期
+      this.idle = res.data.new_real_idle_value  // 停顿
+      this.line_balance = res.data.new_line_balance_value  // 线平衡
+      this.points = res.data.new_three_days_points  // 总点数
+    },
+    // 获取分析排程历史选择项
+    getAnaSelectItem(){
+      this.options_analysis_data = []
+      GetAnaSelectItem().then(res=>{
+        for(let key in res.data){
+          let temp = {}
+          let first_name = res.data[key]["first"]
+          let second_name = res.data[key]["second"]
+          temp["value"] = second_name
+          temp["label"] = first_name + "-" + second_name
+          this.options_analysis_data.push(temp)
+        }
+      }).catch(err=>{
+        console.log("获取分析排程历史选项失败")
+      })
+    },
     // 开始分析
+    beginAnalysis(){
+      if(this.check_success == false){
+        this.$confirm('数据未检查，请确认是否要开始分析排程?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+        }).then(() => {
+          this.analysisExcel()
+        }).catch(()=>{
+          ElMessage({
+            message: "取消分析",
+            type: "info",
+            offset: 70
+          })
+        })
+      } else {
+        this.analysisExcel()
+      }
+    },
+    // 分析排程
     analysisExcel(){
+      ElMessage({
+        message: "开始分析",
+        type: "success",
+        offset: 70
+      })
+      // 开始分析后禁用按钮
+      this.begin_analysis_btn = "info"
+      this.begin_analysis_disable = true
+      this.generate_excel_btn = "info"
+      this.generate_excel_disable = true
+      this.download_excel_btn = "info"
+      this.download_excel_disable = true
+      this.ana_time = ""
+      this.schedule_mode = ""
+      this.schedule_time = ""
+      this.enable = ""
+      this.obj_value = ""
+      this.overdue = ""
+      this.idle = ""
+      this.line_balance = ""
+      this.points = ""
       let wb = this.get_sheet_js(false); // luckysheet获取sheet，并且转化为SheetJS的格式
       let blob = this.workbook2blob(wb);  // SheetJS转化为文件流
       let form_data = new FormData(); // 新建表单
       form_data.append('files', blob);  // 在线表格文件流e
       form_data.append('file_name', this.file_name);  // 在线表格文件流
+      this.ana_refresh = setInterval(() => {
+        setTimeout(this.getAnaProgress(), 0);
+      }, 2000);
       AnalysisExcel(form_data).then(res=>{
-        this.checkAlert("提示", "分析排程测试！", "success")
+        console.log("analysis end")
       }).catch(err=>{
-        this.checkAlert("警告","分析排程测试！", "warning")
+        ElMessage({
+          message: "开始分析出现错误",
+          type: "error",
+          offset: 70
+        })
       })
     },
     // 生成表格
     generateExcel(){
-      
+      ElMessage({
+        message: "开始生成表格,预计需要1~2分钟",
+        type: "success",
+        offset: 70
+      })
+      this.generate_excel_btn = "info"
+      this.generate_excel_disable = true
+      GenerateAnaExcel().then(res=>{
+        console.log("generate done")
+      }).catch(err=>{
+        ElMessage({
+          message: "生成表格出现错误",
+          type: "error",
+          offset: 70
+        })
+      })
     },
     // 下载表格
     downloadExcel(){
@@ -362,6 +563,7 @@ export default {
       let blob = this.workbook2blob(wb);  // SheetJS转化为文件流
       let form_data = new FormData(); // 新建表单
       form_data.append('files', blob);  // 在线表格文件流
+      form_data.append('filename', this.file_name)
       QuantifyData(form_data).then(res=>{
         ElMessage({
           message: "量化成功",
@@ -730,6 +932,7 @@ export default {
         }
       }
       this.checkAlert("提示", "检查无误", "success")
+      this.check_success = true
     },
 
     // 获取最大表格最大行数（包括首行），参数:0:"今日排程" or 1:"未上排程"

@@ -4,8 +4,8 @@ import axios from 'axios';
 //创建一个实例
 const instance = axios.create({
     baseURL: '/api',
-    //请求延时为3000毫秒
-    timeout: 3 * 1000,
+    //请求延时为30000毫秒
+    timeout: 300 * 1000,
 })
  
 // 拦截器 请求拦截

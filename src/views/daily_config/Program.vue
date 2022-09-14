@@ -25,11 +25,13 @@
 
   <div class="box-table">
     <el-card shadow="never">
-        <el-table :data="tableData" @selection-change="tableSelectionHandle" style="width: 100%" stripe>
+        <el-table :data="tableData" @selection-change="tableSelectionHandle" style="width: 100%" stripe
+            :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+        >
         <el-table-column fixed type="selection" width="40" />
         <el-table-column prop="time" label="制作时间">
             <template v-slot="scope">
-            <a @click="editDataDialog(scope.row)" style="color:#409EFF;cursor:pointer">{{scope.row.time}}</a>
+            <a @click="editDataDialog(scope.row)" style="color:#15ae6d;cursor:pointer;font-weight: bold;">{{scope.row.time}}</a>
             </template>
         </el-table-column>
         <el-table-column prop="line" label="线体">

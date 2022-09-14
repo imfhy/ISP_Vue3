@@ -331,18 +331,34 @@ export default {
     },
     downloadSchedule(){
       DownloadSchedule().then(res=>{
+        console.log("文件流:", res)
+        this.downloadFile(res)
         ElMessage({
           message: "开始下载",
           type: "success",
           offset: 70
         })
       }).catch(err=>{
+        console.log("下载排程出错", err)
         ElMessage({
-          message: "发生错误，下载失败",
+          message: "下载出错",
           type: "error",
           offset: 70
         })
       })
+    },
+
+    downloadFile(res){
+      const link = document.createElement('a')
+      let blob = new Blob([res.data])
+      link.style.display = 'none'
+      link.href = URL.createObjectURL(blob)
+      // link.download = res.headers['content-disposition'] //下载后文件名
+      link.download = "hello.xlsx"
+      document.body.appendChild(link)
+      link.click()
+      URL.revokeObjectURL(link.href) // 释放URL对象
+      document.body.removeChild(link)
     },
     downloadLog(){
       DownloadLog().then(res=>{

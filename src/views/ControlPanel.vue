@@ -331,7 +331,7 @@ export default {
     },
     downloadSchedule(){
       DownloadSchedule().then(res=>{
-        console.log("文件流:", res)
+        console.log("文件流格式:", typeof res.data)
         this.downloadFile(res)
         ElMessage({
           message: "开始下载",
@@ -350,11 +350,15 @@ export default {
 
     downloadFile(res){
       const link = document.createElement('a')
-      let blob = new Blob([res.data])
+      // let blob = new Blob([res.data])
+
+      let blob = new Blob([res.data], {
+        type: "application/vnd.ms-excel"
+      });
       link.style.display = 'none'
       link.href = URL.createObjectURL(blob)
-      // link.download = res.headers['content-disposition'] //下载后文件名
-      link.download = "hello.xlsx"
+      link.download = res.headers['content-disposition'] //下载后文件名
+      // link.download = "hello.xlsx"
       document.body.appendChild(link)
       link.click()
       URL.revokeObjectURL(link.href) // 释放URL对象

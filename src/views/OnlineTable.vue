@@ -64,6 +64,7 @@
                 :text-inside="true"
                 :stroke-width="14"
                 :percentage="percentage_1"
+                :indeterminate="indeterminate_1"
                 status="success"
               />
               <el-alert :title="progress_text_1" type="success" :closable="false" />
@@ -71,6 +72,7 @@
                 :text-inside="true"
                 :stroke-width="14"
                 :percentage="percentage_2"
+                :indeterminate="indeterminate_2"
                 status="success"
               />
               <el-alert :title="progress_text_2" type="success" :closable="false" />
@@ -78,6 +80,7 @@
                 :text-inside="true"
                 :stroke-width="14"
                 :percentage="percentage_3"
+                :indeterminate="indeterminate_3"
                 status="success"
               />
               <el-alert :title="progress_text_3" type="success" :closable="false" />
@@ -302,7 +305,11 @@ export default {
       check_success: false,
 
       progress_count: 0,
-      ana_refresh: null
+      ana_refresh: null,
+
+      indeterminate_1: true,
+      indeterminate_2: true,
+      indeterminate_3: true,
     }
   },
   mounted() {
@@ -359,6 +366,21 @@ export default {
         this.progress_text_2 = res.data.p1text
         this.progress_text_3 = res.data.p2text
         let run_flag = res.data.run_flag
+        if (this.percentage_1 == 100){
+          this.indeterminate_1 = false
+        } else {
+          this.indeterminate_1 = true
+        }
+        if (this.percentage_2 == 100){
+          this.indeterminate_2 = false
+        } else {
+          this.indeterminate_2 = true
+        }
+        if (this.percentage_3 == 100){
+          this.indeterminate_3 = false
+        } else {
+          this.indeterminate_3 = true
+        }
         if(run_flag == 1 && res.data.p2 > 0 &&this.progress_count == 0){
           ElMessage({
             message: "分析完毕，可以生成表格",

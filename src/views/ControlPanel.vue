@@ -125,7 +125,7 @@
                   <el-button type="primary" @click="downloadNoProgram">下载无程序表</el-button>
                 </el-col>
                 <el-col :span="8">
-                  <el-button type="primary" @click="downloadLog">下载最新日志</el-button>
+                  <el-button type="primary" @click="downloadLatestLog">下载最新日志</el-button>
                 </el-col>
               </el-row>
             </div>
@@ -260,7 +260,7 @@
 
 <script>
 import { ElLoading, ElMessage } from 'element-plus'
-import { GetProgress,ImportSchedule,ComputSchedule,TrainModel,StopTabu,DownloadSchedule,DownloadLog,DownloadNoProgram } from '@/utils/api.js'
+import { GetProgress,ImportSchedule,ComputSchedule,TrainModel,StopTabu,DownloadNoProgram,DownloadSchedule,DownloadLatestLog } from '@/utils/api.js'
 import axios from 'axios';
 export default {
   data(){
@@ -331,49 +331,31 @@ export default {
     },
     downloadSchedule(){
       DownloadSchedule().then(res=>{
-        console.log("文件流格式:", typeof res.data)
-        this.downloadFile(res)
         ElMessage({
           message: "开始下载",
           type: "success",
           offset: 70
         })
+        this.downloadFile(res)
       }).catch(err=>{
-        console.log("下载排程出错", err)
         ElMessage({
-          message: "下载出错",
+          message: "下载请求出错",
           type: "error",
           offset: 70
         })
       })
     },
-
-    downloadFile(res){
-      const link = document.createElement('a')
-      // let blob = new Blob([res.data])
-
-      let blob = new Blob([res.data], {
-        type: "application/vnd.ms-excel"
-      });
-      link.style.display = 'none'
-      link.href = URL.createObjectURL(blob)
-      link.download = res.headers['content-disposition'] //下载后文件名
-      // link.download = "hello.xlsx"
-      document.body.appendChild(link)
-      link.click()
-      URL.revokeObjectURL(link.href) // 释放URL对象
-      document.body.removeChild(link)
-    },
-    downloadLog(){
-      DownloadLog().then(res=>{
+    downloadLatestLog(){
+      DownloadLatestLog().then(res=>{
         ElMessage({
           message: "开始下载",
           type: "success",
           offset: 70
         })
+        this.downloadFile(res)
       }).catch(err=>{
         ElMessage({
-          message: "发生错误，下载失败",
+          message: "下载请求出错",
           type: "error",
           offset: 70
         })
@@ -386,13 +368,27 @@ export default {
           type: "success",
           offset: 70
         })
+        this.downloadFile(res)
       }).catch(err=>{
         ElMessage({
-          message: "发生错误，下载失败",
+          message: "下载请求出错",
           type: "error",
           offset: 70
         })
       })
+    },
+    downloadFile(res){
+      const link = document.createElement('a')
+      let blob = new Blob([res.data])
+      link.style.display = 'none'
+      link.href = URL.createObjectURL(blob)
+      let temp = res.headers["content-disposition"].split("attachment;filename=")[1]
+      let file_name = decodeURIComponent(temp)
+      link.download = file_name
+      document.body.appendChild(link)
+      link.click()
+      URL.revokeObjectURL(link.href) // 释放URL对象
+      document.body.removeChild(link)
     },
     computeSchedule(){
       ComputSchedule().then(res=>{

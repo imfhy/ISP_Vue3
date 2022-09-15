@@ -1,17 +1,18 @@
 // 常用函数
 
-import XLSX from 'xlsx'
-
-// 前端导出Excel，传入请求到的数据表格数据[{},{}...]、列名、列名映射以及导出的文件命名
-function downloadExcel(res, fileName){
-    let sheetData = res.data.table_data
-    let fields = res.data.fields
-    let fields_display = res.data.fields_display
-    let newData = [fields_display, ...sheetData]
-    let sheet = XLSX.utils.json_to_sheet(newData, {header:fields, skipHeader:true})
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, sheet, fileName);
-    XLSX.writeFile(wb, fileName + ".xlsx");
+// 下载Excel函数
+function downloadExcel(res){
+    const link = document.createElement('a')
+    let blob = new Blob([res.data])
+    link.style.display = 'none'
+    link.href = URL.createObjectURL(blob)
+    let temp = res.headers["content-disposition"].split("attachment;filename=")[1]
+    let file_name = decodeURIComponent(temp)
+    link.download = file_name
+    document.body.appendChild(link)
+    link.click()
+    URL.revokeObjectURL(link.href) // 释放URL对象
+    document.body.removeChild(link)
 }
 
 export { downloadExcel }

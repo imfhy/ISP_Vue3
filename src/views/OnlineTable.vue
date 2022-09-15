@@ -139,8 +139,8 @@
           <span class="dialog-footer">
             <el-button @click="closeAnalysis">关闭</el-button>
             <el-button :type="begin_analysis_btn" :disabled="begin_analysis_disable" @click="beginAnalysis">开始分析</el-button>
-            <el-button :type="generate_excel_btn" :disabled="generate_excel_disable" @click="generateExcel">生成表格</el-button>
-            <el-button :type="download_excel_btn" :disabled="download_excel_disable" @click="downloadExcel">下载表格</el-button>
+            <el-button :type="generate_excel_btn" :disabled="generate_excel_disable" @click="generateAnaExcel">生成表格</el-button>
+            <el-button :type="download_excel_btn" :disabled="download_excel_disable" @click="downloadAnaExcel">下载表格</el-button>
             <!-- <el-button type="primary" @click="compareExcel">对比结果</el-button> -->
           </span>
         </template>
@@ -513,7 +513,7 @@ export default {
       })
     },
     // 生成表格
-    generateExcel(){
+    generateAnaExcel(){
       ElMessage({
         message: "开始生成表格,预计需要1~2分钟",
         type: "success",
@@ -532,8 +532,34 @@ export default {
       })
     },
     // 下载表格
-    downloadExcel(){
-
+    downloadAnaExcel(){
+      DownloadAnaExcel().then(res=>{
+        ElMessage({
+          message: "开始下载",
+          type: "success",
+          offset: 70
+        })
+        this.downloadFile(res)
+      }).catch(err=>{
+        ElMessage({
+          message: "下载请求出错",
+          type: "error",
+          offset: 70
+        })
+      })
+    },
+    downloadFile(res){
+      const link = document.createElement('a')
+      let blob = new Blob([res.data])
+      link.style.display = 'none'
+      link.href = URL.createObjectURL(blob)
+      let temp = res.headers["content-disposition"].split("attachment;filename=")[1]
+      let file_name = decodeURIComponent(temp)
+      link.download = file_name
+      document.body.appendChild(link)
+      link.click()
+      URL.revokeObjectURL(link.href) // 释放URL对象
+      document.body.removeChild(link)
     },
     handleClose(done) {
       this.$confirm('请确认是否要关闭分析排程？', '提示', {

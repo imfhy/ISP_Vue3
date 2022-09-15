@@ -1,5 +1,5 @@
 // 所有接口
-
+import axios from 'axios';
 import { data } from 'jquery';
 import request from './request';
 
@@ -25,7 +25,13 @@ export const ClearAnaProgress = () => request.get("/preprocess/excel/clear_progr
 export const GetAnaProgress = () => request.get('/preprocess/excel/progress/'); // 获取分析排程进度条
 export const AnalysisExcel = (data) => request.post('/preprocess/excel/analysis/', data); // 开始分析
 export const GenerateAnaExcel = () => request.get('/preprocess/excel/confirm_output/'); // 生成表格
-export const DownloadAnaExcel = () => request.get('/preprocess/excel/download_schedule/'); // 下载表格
+export const DownloadAnaExcel = () => { // 下载分析排程表格
+    return axios({
+        method: 'get',
+        url: '/api/excel/download_schedule/',
+        responseType: 'blob'
+    })
+}
 export const QuantifyData = (data) => request.post('/preprocess/schedule/quantify_excel/', data);  // 获取量化结果
 export const GetAnaSelectItem = () => request.get('/preprocess/excel/get_analysis_select/');  // 获取分析排程历史结果选择项
 export const GetAnaSelectData = (data) => request.post('/preprocess/excel/get_analysis_select_data/', data);  // 获取分析排程历史数据
@@ -36,7 +42,25 @@ export const ImportSchedule = (data) => request.post('/preprocess/schedule/impor
 export const ComputSchedule = () => request.get('/preprocess/schedule/compute_schedule/')  // 计算排程接口
 export const TrainModel = (data) => request.post('/preprocess/schedule/train_model/', data)  // 训练预测模型接口
 export const StopTabu = () => request.get('/preprocess/schedule/stop/')  // 终止深度搜索接口
-export const DownloadSchedule = () => request.get('/preprocess/schedule/download/')  // 下载最新排程接口
-export const DownloadLog = () => request.get('/preprocess/schedule/download_log/')  // 下载最新日志接口
-export const DownloadNoProgram = () => request.get('/preprocess/schedule/download_program/')  // 下载无程序表接口
 export const GetProgress = () => request.get('/config/get_progress/'); // 获取跑排程的进度条信息
+export const DownloadSchedule = () => { // 下载最新排程接口
+    return axios({
+        method: 'get',
+        url: '/api/preprocess/schedule/download/',
+        responseType: 'blob'
+    })
+}
+export const DownloadLatestLog = () => { // 下载最新日志接口
+    return axios({
+        method: 'get',
+        url: '/api/preprocess/schedule/download_log/',
+        responseType: 'blob'
+    })
+}
+export const DownloadNoProgram = () => { // 下载无程序表接口
+    return axios({
+        method: 'get',
+        url: '/api/preprocess/schedule/download_program/',
+        responseType: 'blob'
+    })
+}

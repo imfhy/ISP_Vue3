@@ -3,6 +3,8 @@
     <el-card shadow="never" class="box-card">
       <el-alert :title="alert_title" :type="alert_type" :closable="false" style="margin-bottom: 10px"/>
       <el-row>
+        <!-- <el-tag type="info" size="large">{{file_name}}</el-tag> -->
+        <el-input disabled v-model="file_name" style="width: 200px;" />
         <el-upload
           class="upload-demo"
           ref="upload"
@@ -12,6 +14,7 @@
           :auto-upload="false"
           :file-list="uploadFiles"
           :on-change="loadExcelFile"
+          style="margin-left:10px;"
           >
           <el-button slot="trigger" type="primary" style="margin-right: 12px">
             <el-icon><UploadFilled /></el-icon>上传排程表格</el-button>
@@ -258,7 +261,7 @@ export default {
   data(){
     return {
       uploadFiles: [],   // excel文件列表
-      file_name: "",   // excel文件列表
+      file_name: "未上传文件",   // excel文件列表
       options_lock_state: [],
       value_ana_time: "",
       alert_title: "消息提示",
@@ -305,8 +308,8 @@ export default {
       check_success: false,
 
       progress_count: 0,
-      ana_refresh: null,
-
+      ana_refresh: null,  
+      // 进度条是否显示动画
       indeterminate_1: true,
       indeterminate_2: true,
       indeterminate_3: true,

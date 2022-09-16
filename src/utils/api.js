@@ -28,7 +28,7 @@ export const GenerateAnaExcel = () => request.get('/preprocess/excel/confirm_out
 export const DownloadAnaExcel = () => { // 下载分析排程表格
     return axios({
         method: 'get',
-        url: '/api/excel/download_schedule/',
+        url: '/api/preprocess/excel/download_schedule/',
         responseType: 'blob'
     })
 }

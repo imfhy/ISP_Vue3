@@ -185,7 +185,7 @@
       :before-close="handleClose"
       >
       <el-steps :active="step_now" finish-status="success" simple>
-        <el-step title="选择文件" />
+        <el-step title="上传排程" />
         <el-step title="导入排程" />
         <el-step title="更新数据" />
         <el-step title="计算排程" />
@@ -207,7 +207,7 @@
       </el-upload> -->
       <el-row style="margin-top:10px;">
         <el-col :span="8">
-          <el-input placeholder="请选择排程文件" :value="upload_file_name"></el-input>
+          <el-input placeholder="请上传排程文件" :value="upload_file_name"></el-input>
         </el-col>
         <el-col :span="16">
           <el-upload
@@ -222,7 +222,7 @@
             :show-file-list="false"
           >
             <template #trigger>
-              <el-button type="primary" style="margin-left:10px;">选择排程文件</el-button>
+              <el-button type="primary" style="margin-left:10px;">上传排程文件</el-button>
             </template>
             <el-button style="margin-left:10px;" type="success" @click="submitUpload">
               导入文件
@@ -287,7 +287,7 @@ export default {
 
       step_now: 0,  // 计算导入排程当前步骤
 
-      upload_file_name: "未选择排程文件",
+      upload_file_name: "请上传排程文件",
       upload_file: null,
     }
   },

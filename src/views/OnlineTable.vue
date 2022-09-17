@@ -248,7 +248,8 @@
 import LuckySheet from '../components/LuckySheet.vue'
 import LuckyExcel from 'luckyexcel'
 import XLSX from 'xlsx'
-import { CheckData, AnalysisExcel, GenerateAnaExcel, DownloadAnaExcel, QuantifyData, GetAnaProgress, ClearAnaProgress, GetAnaSelectItem, GetAnaSelectData } from '@/utils/api.js'
+import { CheckData, AnalysisExcel, GenerateAnaExcel, DownloadAnaExcel, QuantifyData, 
+  GetAnaProgress, ClearAnaProgress, GetAnaSelectItem, GetAnaSelectData } from '@/utils/api.js'
 import { ElLoading,ElMessage } from 'element-plus'
 export default {
   name: "luckysheet",

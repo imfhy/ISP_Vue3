@@ -133,15 +133,15 @@
           <div class="schedule-box">
             <el-alert title="下载历史数据" type="info" :closable="false" />
             <div class="button-box">
-              <el-select style="width:180px;" v-model="value" class="m-2" placeholder="选择历史日志">
+              <el-select style="width:180px;" v-model="select_log_value" class="m-2" placeholder="选择历史日志">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in log_options"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value" 
                 />
               </el-select>
-              <el-button type="primary" style="margin-left: 8px;">下载历史日志</el-button>
+              <el-button type="primary" style="margin-left: 8px;" @click="downloadHistoryLog">下载历史日志</el-button>
             </div>
           </div>
         </el-card>
@@ -260,7 +260,8 @@
 
 <script>
 import { ElLoading, ElMessage } from 'element-plus'
-import { GetProgress,ImportSchedule,ComputSchedule,TrainModel,StopTabu,DownloadNoProgram,DownloadSchedule,DownloadLatestLog } from '@/utils/api.js'
+import { GetProgress, ImportSchedule, ComputSchedule, TrainModel, StopTabu,
+   DownloadNoProgram, DownloadSchedule, DownloadLatestLog, GetLogSelectItem, DownloadHistoryLog } from '@/utils/api.js'
 import axios from 'axios';
 export default {
   data(){
@@ -289,11 +290,49 @@ export default {
 
       upload_file_name: "请上传排程文件",
       upload_file: null,
+
+      log_options: [],  // 历史日志选择器选项
+      select_log_value: "",  // 当前选中的历史日志
     }
   },
   methods:{
     computeSchedule(){
       
+    },
+    getLogSelectItem(){
+      this.log_options = []
+      GetLogSelectItem().then(res=>{
+        for(let key in res.data){
+          let temp = {}
+          temp["value"] = res.data[key]
+          temp["label"] = res.data[key]
+          this.log_options.push(temp)
+        }
+      }).catch(err=>{
+        ElMessage({
+          message: "获取历史日志列表请求出错",
+          type: "error",
+          offset: 70
+        })
+      })
+    },
+    // 下载历史日志
+    downloadHistoryLog(){
+      DownloadHistoryLog({"filename": this.select_log_value}).then(res=>{
+        console.log(res)
+        ElMessage({
+          message: "开始下载",
+          type: "success",
+          offset: 70
+        })
+        this.downloadFile(res)
+      }).catch(err=>{
+        ElMessage({
+          message: "下载历史日志请求出错",
+          type: "error",
+          offset: 70
+        })
+      })
     },
     handleChange(file, fileList) {
       console.log(file)
@@ -442,7 +481,6 @@ export default {
     },
     trainModel(){
       TrainModel({"end_time": this.train_date}).then(res=>{
-        console.log(res)
         if(res.data.code==200){
           ElMessage({
             message: res.data.msg,
@@ -458,9 +496,8 @@ export default {
           })
         }
       }).catch(err=>{
-        console.log("发生错误，训练失败：", err)
         ElMessage({
-          message: "发生错误，训练失败",
+          message: "训练模型请求出错",
           type: "error",
           offset: 70
         })
@@ -538,6 +575,7 @@ export default {
   },
   mounted(){
     this.getProgress()
+    this.getLogSelectItem()
     // setInterval(this.getProgress, 5000)
   }
 }

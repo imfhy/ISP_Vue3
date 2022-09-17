@@ -1,6 +1,6 @@
 // 所有接口
 import axios from 'axios';
-import { data } from 'jquery';
+import { data, param } from 'jquery';
 import request from './request';
 
 // 控制面板相关接口
@@ -43,6 +43,7 @@ export const ComputSchedule = () => request.get('/preprocess/schedule/compute_sc
 export const TrainModel = (data) => request.post('/preprocess/schedule/train_model/', data)  // 训练预测模型接口
 export const StopTabu = () => request.get('/preprocess/schedule/stop/')  // 终止深度搜索接口
 export const GetProgress = () => request.get('/config/get_progress/'); // 获取跑排程的进度条信息
+export const GetLogSelectItem = () => request.get("/preprocess/schedule/getselectlog/") // 获取历史日志选择项
 export const DownloadSchedule = () => { // 下载最新排程接口
     return axios({
         method: 'get',
@@ -55,6 +56,16 @@ export const DownloadLatestLog = () => { // 下载最新日志接口
         method: 'get',
         url: '/api/preprocess/schedule/download_log/',
         responseType: 'blob'
+    })
+}
+export const DownloadHistoryLog = (data) => {  // 下载历史日志接口
+    return axios({
+        method: 'post',
+        url: '/api/preprocess/schedule/download_select_log/',
+        responseType: 'blob',
+        data: {
+            data
+        }
     })
 }
 export const DownloadNoProgram = () => { // 下载无程序表接口
